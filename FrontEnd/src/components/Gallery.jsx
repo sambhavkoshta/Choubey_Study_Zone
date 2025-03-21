@@ -54,6 +54,8 @@ const Gallery = () => {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
+      if (!fullscreenImage) return;
+      
       if (event.key === "Escape") {
         handleCloseFullscreen();
       } else if (event.key === "ArrowRight") {
@@ -66,32 +68,83 @@ const Gallery = () => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [currentIndex, images]);
+  }, [currentIndex, images, fullscreenImage]);
+
+  // Prevent body scroll when fullscreen image is open
+  useEffect(() => {
+    if (fullscreenImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [fullscreenImage]);
 
   return (
-    <div className="bg-gradient-to-b from-[#1A2A6C] via-[#B21F1F] to-[#fdbb2d] min-h-screen py-16 px-6">
+    <div className="min-h-screen py-8 sm:py-10 md:py-12 bg-[#F5F5F5] px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg">📸 Our Stunning Gallery</h1>
-          <p className="text-lg text-gray-300 max-w-3xl mx-auto italic">"Experience the beauty of learning through captured moments."</p>
+        <motion.div 
+          className="text-center mb-8 md:mb-12" 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.6 }}
+        >
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#1E88E5] mb-2 sm:mb-4">📸 Our Stunning Gallery</h1>
+          <p className="text-base sm:text-lg text-[#212121] max-w-3xl mx-auto">
+            "Experience the beauty of learning through captured moments."
+          </p>
         </motion.div>
 
         {loading ? (
-          <p className="text-center text-gray-400">Loading...</p>
+          <div className="flex justify-center items-center h-40">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1E88E5]"></div>
+          </div>
         ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
+          <div className="text-center py-8">
+            <p className="text-red-500 text-lg">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-4 px-6 py-2 bg-[#1E88E5] text-white rounded-lg hover:bg-[#1565C0] transition"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : images.length === 0 ? (
+          <p className="text-center text-gray-500 py-8">No images available in the gallery.</p>
         ) : (
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ staggerChildren: 0.1 }}>
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ duration: 0.4 }}
+          >
             {images.map((img, index) => (
               <motion.div
-                key={img._id}
+                key={img._id || index}
                 className="relative overflow-hidden rounded-xl shadow-lg cursor-pointer hover:shadow-2xl transition-all duration-300"
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.03 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ 
+                  opacity: 1, 
+                  y: 0,
+                  transition: { delay: index * 0.05 }
+                }}
                 onClick={() => handleImageClick(img.url, index)}
               >
-                <img src={img.url} alt="Gallery" className="w-full h-72 object-cover rounded-xl" loading="lazy" />
-                <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-md opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <p className="text-white text-lg font-semibold">🔍 View Image</p>
+                <div className="relative pb-[75%]">
+                  <img 
+                    src={img.url} 
+                    alt={img.title || "Gallery image"} 
+                    className="absolute inset-0 w-full h-full object-cover rounded-xl" 
+                    loading="lazy" 
+                  />
+                </div>
+                <div className="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <p className="text-white text-base sm:text-lg font-medium px-4 py-2 rounded-full bg-black bg-opacity-40">
+                    🔍 View Image
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -99,37 +152,54 @@ const Gallery = () => {
         )}
 
         {fullscreenImage && (
-          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 backdrop-blur-md" onClick={handleCloseFullscreen}>
+          <motion.div 
+            className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 backdrop-blur-sm p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            onClick={handleCloseFullscreen}
+          >
             <button
               onClick={showPrevImage}
-              className="absolute left-10 text-white text-3xl p-4 rounded-full bg-gray-800/70 hover:bg-white hover:text-black transition"
+              className="absolute left-2 sm:left-6 md:left-10 text-white text-xl sm:text-2xl md:text-3xl p-2 sm:p-3 md:p-4 rounded-full bg-black bg-opacity-50 hover:bg-white hover:text-black transition z-20"
+              aria-label="Previous image"
             >
               <FaArrowLeft />
             </button>
 
-            <motion.img
-              src={fullscreenImage}
-              alt="Fullscreen Image"
-              className="max-w-4xl h-auto object-cover rounded-xl shadow-lg border-4 border-gray-700"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4 }}
-            />
+            <div className="relative w-full max-w-6xl max-h-[80vh] flex items-center justify-center">
+              <motion.img
+                src={fullscreenImage}
+                alt="Fullscreen Image"
+                className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-xl"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
 
             <button
               onClick={showNextImage}
-              className="absolute right-10 text-white text-3xl p-4 rounded-full bg-gray-800/70 hover:bg-white hover:text-black transition"
+              className="absolute right-2 sm:right-6 md:right-10 text-white text-xl sm:text-2xl md:text-3xl p-2 sm:p-3 md:p-4 rounded-full bg-black bg-opacity-50 hover:bg-white hover:text-black transition z-20"
+              aria-label="Next image"
             >
               <FaArrowRight />
             </button>
 
             <button
               onClick={handleCloseFullscreen}
-              className="absolute top-8 right-8 text-white text-3xl p-4 rounded-full bg-red-600/70 hover:bg-white hover:text-black transition"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 text-white text-xl sm:text-2xl md:text-3xl p-2 sm:p-3 md:p-4 rounded-full bg-red-600 bg-opacity-70 hover:bg-white hover:text-red-600 transition z-20"
+              aria-label="Close fullscreen"
             >
               <FaTimes />
             </button>
-          </div>
+            
+            {/* Image counter */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
+              {currentIndex + 1} / {images.length}
+            </div>
+          </motion.div>
         )}
       </div>
     </div>
@@ -137,4 +207,3 @@ const Gallery = () => {
 };
 
 export default Gallery;
- 

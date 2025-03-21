@@ -1,80 +1,201 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import API from '../api'; // Import Axios
-import EnrollmentForm from './EnrollmentForm'; // Enrollment Form Component
+import axios from 'axios';
+import { BookOpen, IndianRupee } from 'lucide-react';
+import EnrollmentForm from './EnrollmentForm';
 
 const Courses = () => {
-  const [courses, setCourses] = useState([]); 
-  const [isLoggedIn, setIsLoggedIn] = useState(false); 
-  const [selectedCourse, setSelectedCourse] = useState(null); // Selected Course
-  const navigate = useNavigate();
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await API.get('/courses'); 
+        setLoading(true);
+        const response = await axios.get('http://localhost:7000/api/courses');
         setCourses(response.data);
-        setIsLoggedIn(true)
+        setError(null);
       } catch (error) {
         console.error('Error fetching courses:', error);
+        setError('Failed to load courses. Please try again later.');
+      } finally {
+        setLoading(false);
       }
     };
+
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("userToken");
+        if (!token) {
+          setIsLoggedIn(false);
+          return;
+        }
+
+        const res = await axios.get('http://localhost:7000/api/student/profile', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUser(res.data);
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+        setIsLoggedIn(false);
+        localStorage.removeItem("userToken");
+      }
+    };
+
     fetchCourses();
+    fetchUser();
   }, []);
 
   const handleEnrollClick = (course) => {
-    if (!isLoggedIn) {
-      alert("Please login or register to enroll in a course.");
-      navigate('/login');
-      return;
+    setSelectedCourse(course);
+  };
+
+  // Container variants for staggered animations
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
     }
-    setSelectedCourse(course); // Set selected course for enrollment
+  };
+
+  // Item variants for child animations
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.4 }
+    }
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+      className="min-h-screen py-8 sm:py-10 md:py-12 bg-[#F5F5F5] px-4 sm:px-6 lg:px-8"
+    >
+      <div className="max-w-7xl mx-auto">
+        <motion.div 
+          className="text-center mb-8 md:mb-12"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-2 sm:mb-4">
             Our Courses
           </h1>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-800 max-w-3xl mx-auto">
             Choose from our selection of comprehensive courses designed to help you succeed
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.length > 0 ? (
-            courses.map((course) => (
-              <motion.div key={course._id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <img src={course.image} alt={course.title} className="w-full h-48 object-cover"/>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{course.title}</h3>
-                  <p className="text-gray-600 mb-4">{course.description}</p>
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-sm text-gray-500">Duration: {course.duration}</span>
-                    <span className="text-lg font-semibold text-blue-600">{course.price}</span>
+        {loading ? (
+          <div className="flex justify-center items-center h-40">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-red-500 text-lg">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : courses.length === 0 ? (
+          <div className="text-center py-10">
+            <p className="text-gray-700 text-lg">No courses available at the moment.</p>
+            <p className="text-gray-600 mt-2">Please check back later for new course offerings.</p>
+          </div>
+        ) : (
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {courses.map((course) => (
+              <motion.div 
+                key={course._id} 
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col h-full"
+                variants={itemVariants}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              >
+                <div className="relative">
+                  <img 
+                    src={course.image} 
+                    alt={course.title} 
+                    className="w-full h-48 object-cover"
+                    loading="lazy"
+                  />
+                  {course.featured && (
+                    <div className="absolute top-2 right-2 bg-yellow-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                      Featured
+                    </div>
+                  )}
+                </div>
+                
+                <div className="p-4 sm:p-5 md:p-6 flex flex-col flex-grow">
+                  <h3 className="text-lg sm:text-xl font-semibold text-primary mb-2 flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-primary flex-shrink-0" /> 
+                    <span className="line-clamp-1">{course.title}</span>
+                  </h3>
+                  
+                  <p className="text-gray-700 mb-4 text-sm sm:text-base line-clamp-3 flex-grow">
+                    {course.description}
+                  </p>
+                  
+                  <div className="mt-auto">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-base sm:text-lg font-semibold text-[#FFC107] flex items-center gap-1">
+                        <IndianRupee className="w-4 h-4" /> {course.price}
+                      </span>
+                      
+                      {course.duration && (
+                        <span className="text-sm text-gray-600">
+                          {course.duration}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <motion.button
+                      onClick={() => handleEnrollClick(course)}
+                      className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300 text-sm sm:text-base font-medium"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Enroll Now
+                    </motion.button>
                   </div>
-                  <button
-                    onClick={() => handleEnrollClick(course)}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-300"
-                  >
-                    {isLoggedIn ? "Enroll Now" : "Login to Enroll"}
-                  </button>
                 </div>
               </motion.div>
-            ))
-          ) : (
-            <p className="text-gray-600">No courses available.</p>
-          )}
-        </div>
+            ))}
+          </motion.div>
+        )}
       </div>
 
-      {/* Enrollment Form Modal */}
-      {selectedCourse && <EnrollmentForm course={selectedCourse} onClose={() => setSelectedCourse(null)} />}
-    </div>
+      {selectedCourse && (
+        <EnrollmentForm 
+          course={selectedCourse}  
+          user={user}  
+          onClose={() => setSelectedCourse(null)}  
+          isLoggedIn={isLoggedIn}
+        />
+      )}
+    </motion.div>
   );
 };
+
 
 export default Courses;

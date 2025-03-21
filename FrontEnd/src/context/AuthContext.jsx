@@ -1,68 +1,84 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
+import API from "../api";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-  const token = localStorage.getItem("userToken");
-  console.log("Stored Token:", token);
-
-  if (token) {
-    axios
-      .get("/api/student/profile", { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => {
-        console.log("User Data:", res.data);
-        setUser(res.data?.user || null); // Ensure user is not undefined
-      })
-      .catch((err) => {
-        console.error("Profile Fetch Error:", err.response?.data || err);
-        logout();
-      })
-      .finally(() => setLoading(false));
-  } else {
-    console.log("No Token Found, Setting Loading to False");
-    setLoading(false);
-  }
-}, []);
-
-  
-
-  const login = async (email, password) => {
-    try {
-      const { data } = await axios.post("/api/auth/login", { email, password });
-      localStorage.setItem("userToken", data.token);
-      setUser(data.user);
-      return { success: true };
-    } catch (error) {
-      return { success: false, message: error.response?.data?.message || "Login failed" };
-    }
-  };
-
-  const logout = async () => {
+const refreshAccessToken = async () => {
   try {
-    await axios.post("/api/student/logout"); // ✅ Call backend logout API if exists
+    const { data } = await API.get("/admin/refresh-token"); // ✅ Call Backend API
+    localStorage.setItem("adminToken", data.accessToken);
+    return data.accessToken;
   } catch (error) {
-    console.error("Logout failed", error);
+    logout();
   }
-  localStorage.removeItem("userToken");
-  setUser(null);
 };
 
+// ✅ API Call with Auto Refresh
+const apiWithAuth = async (url, method = "GET", body = null) => {
+  let token = localStorage.getItem("adminToken");
+  
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+
+  let response = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
+
+  if (response.status === 401) {
+    token = await refreshAccessToken(); // 🔄 Try Refreshing Token
+    if (!token) return; // ❌ If Refresh Fails, Logout
+    headers.Authorization = `Bearer ${token}`;
+    response = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
+  }
+
+  return response.json();
+};
+
+
+export const AuthProvider = ({ children }) => {
+  const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ Logout Function (Session Expired Handle करने के लिए)
+  const logout = () => {
+    localStorage.removeItem("adminToken");
+    API.post("/admin/logout"); // ✅ Backend Logout API Call
+    setAdmin(null);
+    window.location.href = "/admin/login"; // ✅ Redirect to Login Page
+  };
+
+  useEffect(() => {
+    const fetchAdmin = async () => {
+      try {
+        const token = localStorage.getItem("adminToken");
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        const { data } = await API.get("/admin/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setAdmin(data);
+      } catch (error) {
+        if (error.response?.status === 401) {
+          alert("Session Expired! Please Login Again."); // ✅ Show Alert
+          logout();
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAdmin();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{ admin, setAdmin, logout }}>
+      {!loading && children} {/* ✅ Prevent Infinite Loop */}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);

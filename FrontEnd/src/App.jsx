@@ -107,8 +107,8 @@
 
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Header from "./components/Header";
 import Navbar from "./components/Navbar";
+import ScrollToTop from "./components/ScrollToTop";
 import Home from "./components/Home";
 import About from "./components/About";
 import Courses from "./components/Courses";
@@ -121,20 +121,13 @@ import Footer from "./components/Footer";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 
-// 📌 Student Dashboard Pages
-// import StudentDashboard from "../src/pages/Student/StudentDashboard";
-// import Profile from "../src/pages/Student/Profile";
-// import StudentCourses from "../src/pages/Student/StudentCourses";
-// // import StudyMaterials from "../src/pages/Student/StudyMaterials";
-// import Feedback from "../src/pages/Student/Feedback";
 
 import StudentRoutes from "./routes/StudentRoutes";
 
 // 📌 Admin Dashboard Imports
 import AdminRoutes from "./routes/AdminRoutes";
 import AdminLogin from "./pages/admin/AdminLogin";
-import { AdminAuthProvider } from "./context/AdminAuthContext";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider }  from "./context/AuthContext";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -158,8 +151,8 @@ function App() {
   }, []);
 
   return (
-    <AdminAuthProvider>
-      <AuthProvider>
+    <AuthProvider>
+      {/* <AuthProvider> */}
         <div className="bg-[#f8f9fa] min-h-screen text-gray-900">
           {loading ? (
             <div className="flex items-center justify-center h-screen bg-gradient-to-r from-blue-500 to-purple-600 text-white text-2xl font-semibold">
@@ -167,8 +160,8 @@ function App() {
             </div>
           ) : (
             <>
-              <Header />
               <Navbar isLoggedIn={isLoggedIn} />
+              <ScrollToTop/>
               <main className="container mx-auto px-4 py-6 bg-white shadow-md rounded-lg">
                 <Routes>
                   {/* Public Routes */}
@@ -197,8 +190,8 @@ function App() {
           <ToastContainer />
           <Footer />
         </div>
-      </AuthProvider>
-    </AdminAuthProvider>
+      {/* </AuthProvider> */}
+    </AuthProvider>
   );
 }
 

@@ -1,16 +1,25 @@
 import express from "express";
-import { uploadStudyMaterial, getStudyMaterials, deleteStudyMaterial } from "../controllers/studyMaterialController.js";
-import upload from "../middlewares/upload.js"; // Multer Middleware for File Upload
+import upload from "../middlewares/multer.middleware.js";
+import {
+  getStudyMaterials,
+  addStudyMaterial,
+  updateStudyMaterial,
+  deleteStudyMaterial
+} from "../controllers/studyMaterialController.js";
+import { protectAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ Upload Study Material
-router.post("/upload", upload.single("file"), uploadStudyMaterial);
+// ✅ Fetch all study materials (Public)
+router.get("/", getStudyMaterials);
 
-// ✅ Get Study Materials for a Course
-router.get("/:courseId", getStudyMaterials);
+// ✅ Add Study Material (Only Admin)
+router.post("/", protectAdmin, upload.single("file"), addStudyMaterial);
 
-// ✅ Delete Study Material
-router.delete("/:id", deleteStudyMaterial);
+// ✅ Update Study Material (Only Admin)
+router.put("/:id", protectAdmin, upload.single("file"), updateStudyMaterial);
+
+// ✅ Delete Study Material (Only Admin)
+router.delete("/:id", protectAdmin, deleteStudyMaterial);
 
 export default router;

@@ -1,11 +1,25 @@
 import mongoose from "mongoose";
 
-const FeedbackSchema = new mongoose.Schema(
+const feedbackSchema = new mongoose.Schema(
   {
-    student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    message: { type: String, required: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // यह User Model से जुड़ेगा
+      required: true,
+    },
+    message: {
+      type: String,
+      required: [true, "Feedback message is required"],
+      trim: true,
+    },
+    rating: {
+      type: Number,
+      required: [true, "Rating is required"],
+      min: 1,
+      max: 5,
+    },
   },
-  { timestamps: true }
+  { timestamps: true } // CreatedAt & UpdatedAt अपने आप add होंगे
 );
 
-export default mongoose.model("Feedback", FeedbackSchema);
+export default mongoose.model("Feedback", feedbackSchema);

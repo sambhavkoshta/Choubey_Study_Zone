@@ -1,21 +1,33 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
-import API from '../api';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaUser, FaPaperPlane } from "react-icons/fa";
+import API from "../api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const Contact = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
   });
 
   const [emailError, setEmailError] = useState("");
+  const [mapUrl, setMapUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch Google Map URL from API
+  useEffect(() => {
+    setLoading(true);
+    API.get("/contact/location")
+      .then((res) => setMapUrl(res.data.mapUrl))
+      .catch(() => toast.error("Failed to load map"))
+      .finally(() => setLoading(false));
+  }, []);
 
   const validateEmail = (email) => {
-    // Basic Email Regex Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setEmailError("Invalid email format");
@@ -28,7 +40,7 @@ const Contact = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
     if (e.target.name === "email") {
       validateEmail(e.target.value);
@@ -42,78 +54,133 @@ const Contact = () => {
       return;
     }
 
+    setIsSubmitting(true);
     try {
-      const response = await API.post("/contact", formData);
-      console.log(response.data);
-       toast.success("Message Sent Successfully! 🚀");
-      setFormData({ name: '', email: '', phone: '', message: '' })
+      await API.post("/contact/submit", formData);
+      toast.success("Message Sent Successfully! 🚀");
+      setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (error) {
-      console.error("Error submitting form", error);
       toast.error("Failed to send message. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Contact Us</h1>
-          <p className="text-lg text-gray-500">Get in touch with us for any queries or support</p>
-        </div>
+    <div className="min-h-screen py-6 md:py-12 bg-[#F5F5F5] px-4 sm:px-6">
+      <div className="max-w-5xl mx-auto">
+        {/* Header Section */}
+        <motion.div
+          className="text-center mb-8 md:mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-primary mb-2 md:mb-4">Contact Us</h1>
+          <p className="text-base md:text-lg text-gray-600">We're here to assist you. Reach out to us anytime!</p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-semibold mb-6 text-gray-800">Contact Information</h2>
-            <div className="space-y-6">
-              <div className="flex items-center">
-                <FaPhone className="text-indigo-600 text-xl mr-4" />
-                <div>
-                  <h3 className="font-medium text-gray-700">Phone</h3>
-                  <p className="text-gray-600">+91 9630849817</p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <FaEnvelope className="text-indigo-600 text-xl mr-4" />
-                <div>
-                  <h3 className="font-medium text-gray-700">Email</h3>
-                  <p className="text-gray-600">contact@chaubeystudyzone.com</p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <FaMapMarkerAlt className="text-indigo-600 text-xl mr-4" />
-                <div>
-                  <h3 className="font-medium text-gray-700">Address</h3>
-                  <p className="text-gray-600">Choubey Study Zone, Ahinsa Chowk, Vijay Nagar, Jabalpur, Madhya Pradesh 482002</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <motion.div 
-            className="bg-white rounded-lg shadow-lg p-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+          {/* Contact Info Section */}
+          <motion.div
+            className="bg-white rounded-2xl shadow-xl p-6 md:p-8 flex flex-col space-y-4 md:space-y-6"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <h2 className="text-2xl font-semibold mb-6 text-gray-800">Send us a Message</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <h2 className="text-xl md:text-2xl font-semibold text-primary flex items-center">
+              <FaUser className="mr-2" /> Contact Information
+            </h2>
+            <div className="flex items-center text-gray-700">
+              <FaPhone className="text-primary text-xl md:text-2xl mr-3 md:mr-4 flex-shrink-0" />
+              <p className="text-base md:text-lg">+91 9630849817</p>
+            </div>
+            <div className="flex items-center text-gray-700">
+              <FaEnvelope className="text-primary text-xl md:text-2xl mr-3 md:mr-4 flex-shrink-0" />
+              <p className="text-base md:text-lg break-all">contact@chaubeystudyzone.com</p>
+            </div>
+            <div className="flex items-start text-gray-700">
+              <FaMapMarkerAlt className="text-primary text-xl md:text-2xl mr-3 md:mr-4 mt-1 flex-shrink-0" />
+              <p className="text-base md:text-lg">Ahinsa Chowk, Vijay Nagar, Jabalpur</p>
+            </div>
+
+            {/* Google Map Section */}
+            <div className="mt-4 md:mt-8">
+              {loading ? (
+                <div className="w-full h-48 md:h-64 bg-gray-200 animate-pulse rounded-lg"></div>
+              ) : mapUrl ? (
+                <iframe className="w-full h-48 md:h-64 rounded-lg shadow-lg" src={mapUrl} allowFullScreen loading="lazy"></iframe>
+              ) : (
+                <p className="text-center text-gray-500">Failed to load map</p>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Contact Form Section */}
+          <motion.div
+            className="bg-white rounded-2xl shadow-xl p-6 md:p-8"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <h2 className="text-xl md:text-2xl font-semibold text-primary flex items-center mb-4 md:mb-6">
+              <FaPaperPlane className="mr-2" /> Send us a Message
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
-                <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required />
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Full Name"
+                  className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+                  required
+                />
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required />
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Email"
+                  className={`w-full p-3 rounded-lg border shadow-sm focus:ring-2 transition ${
+                    emailError ? "border-red-500 focus:ring-red-300" : "border-gray-300 focus:ring-primary/50 focus:border-primary"
+                  }`}
+                  required
+                />
+                {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
               </div>
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
-                <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required />
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="Phone Number"
+                  className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+                  required
+                />
               </div>
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700">Message</label>
-                <textarea id="message" name="message" value={formData.message} onChange={handleChange} rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required />
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  placeholder="Your Message"
+                  rows={4}
+                  className="w-full p-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+                  required
+                ></textarea>
               </div>
-              <button type="submit" className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors duration-300">Send Message</button>
+              <button
+                type="submit"
+                className="w-full bg-primary text-white py-3 rounded-lg text-base md:text-lg font-medium hover:bg-primary-dark transition duration-300 disabled:opacity-70"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Sending..." : "Send Message"}
+              </button>
             </form>
           </motion.div>
         </div>
@@ -121,5 +188,6 @@ const Contact = () => {
     </div>
   );
 };
+
 
 export default Contact;

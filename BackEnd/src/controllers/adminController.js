@@ -1,52 +1,46 @@
 import Admin from "../models/Admin.js";
+import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
+import { sendOTP } from "../config/mailer.js";
+
+
+// import User from "../models/User.js";
+import Course from "../models/course.model.js";
+import Gallery from "../models/galleryModel.js"
+// import StudyMaterial from "../models/StudyMaterial.js";
+import Feedback from "../models/Feedback.js";
+import Contact from "../models/Contact.js";
+import Faculty from "../models/Faculty.js";
 
 // 📌 Admin Login
 export const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("🔹 Received Admin Login Request - Email:", email);
-
     const admin = await Admin.findOne({ email });
-    if (!admin) {
-      console.log("❌ Admin Not Found!");
-      return res.status(401).json({ message: "Invalid Email or Password" });
-    }
 
-    // 🔐 Compare Password
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      console.log("❌ Password does not match!");
-      return res.status(401).json({ message: "Invalid Email or Password" });
+    if (!admin || !(await bcrypt.compare(password, admin.password))) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     // ✅ Generate Tokens
     const accessToken = generateAccessToken(admin._id);
     const refreshToken = generateRefreshToken(admin._id);
 
-    // 🔄 Save Refresh Token in Database
+    // ✅ Save Refresh Token in DB
     admin.refreshToken = refreshToken;
     await admin.save();
 
-    // 🍪 Store Refresh Token in HttpOnly Cookie
+    // 🍪 Set Refresh Token in Cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
 
-    // ✅ Send Response
-    return res.json({ 
-      _id: admin._id, 
-      name: admin.name, 
-      email: admin.email, 
-      accessToken 
-    });
-
+    res.json({ _id: admin._id, name: admin.firstname, email: admin.email, accessToken });
   } catch (error) {
-    console.error("🚨 Error in Admin Login:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -54,14 +48,38 @@ export const loginAdmin = async (req, res) => {
 // 📌 Get Admin Profile
 export const getAdminProfile = async (req, res) => {
   try {
-    const { name, email } = req.admin;
-    res.json({ name, email });
+    const admin = await Admin.findById(req.admin._id).select("-password");
+    if (!admin) return res.status(404).json({ message: "Admin not found" });
+    res.json(admin);
   } catch (error) {
-    console.error("🚨 Error Fetching Admin Profile:", error.message);
-    res.status(500).json({ message: "Failed to Fetch Admin Profile" });
+    res.status(500).json({ message: "Server Error!" });
   }
 };
 
+
+export const getAdminStats = async (req, res) => {
+  try {
+    const totalStudents = await User.countDocuments();
+    const totalCourses = await Course.countDocuments();
+    const galleryImages = await Gallery.countDocuments();
+    // const studyMaterials = await StudyMaterial.countDocuments();
+    const feedbackReceived = await Feedback.countDocuments();
+    const contactQueries = await Contact.countDocuments();
+    const totalFaculty = await Faculty.countDocuments();
+
+    res.json({
+      totalStudents,
+      totalCourses,
+      galleryImages,
+      studyMaterials,
+      feedbackReceived,
+      contactQueries,
+      totalFaculty,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching stats", error });
+  }
+};
 // 📌 Refresh Access Token
 export const refreshAdminToken = async (req, res) => {
   try {
@@ -91,15 +109,11 @@ export const refreshAdminToken = async (req, res) => {
     });
 
     res.json({ accessToken: newAccessToken });
-
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token Expired, Please Login Again" });
-    }
-    console.error("🚨 Refresh Token Error:", error.message);
-    res.status(403).json({ message: "Forbidden, Invalid Token" });
+    return res.status(403).json({ message: "Forbidden, Invalid Token" });
   }
 };
+
 
 // 📌 Logout Admin
 export const logoutAdmin = async (req, res) => {
@@ -118,9 +132,85 @@ export const logoutAdmin = async (req, res) => {
     res.clearCookie("refreshToken");
 
     res.status(200).json({ message: "Logged out successfully!" });
-
   } catch (error) {
-    console.error("🚨 Logout Error:", error.message);
     res.status(500).json({ message: "Failed to Logout" });
+  }
+};
+
+// 📌 Forgot Password (OTP via Email)
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(404).json({ message: "Admin not found" });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate 6-digit OTP
+    const otpToken = jwt.sign({ email, otp }, process.env.JWT_SECRET, { expiresIn: "10m" });
+
+    // ✅ Send OTP via Email
+    await sendOTP(email, otp);
+
+    res.json({ message: "OTP sent to your email", otpToken });
+  } catch (error) {
+    res.status(500).json({ message: "Error sending OTP" });
+  }
+};
+
+// 📌 Reset Password
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { otp, newPassword } = req.body;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded || decoded.otp !== otp) {
+      return res.status(400).json({ message: "Invalid or Expired OTP" });
+    }
+
+    const admin = await Admin.findOne({ email: decoded.email });
+    if (!admin) return res.status(404).json({ message: "Admin not found" });
+
+    // ✅ Update Password
+    admin.password = await bcrypt.hash(newPassword, 10);
+    await admin.save();
+
+    res.json({ message: "Password reset successfully!" });
+  } catch (error) {
+    res.status(400).json({ message: "Invalid or Expired Token" });
+  }
+};
+
+export const getAllStudents = async (req, res) => {
+  try {
+    const students = await User.find().select("-password").populate({path : "enrolledCourses", select : "title"});;
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
+
+export const updateStudent = async (req, res) => {
+  try {
+    const { firstName, lastName, phone } = req.body;
+    const student = await User.findByIdAndUpdate(req.params.id, { firstName, lastName, phone }, { new: true });
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    res.json({ message: "Student updated successfully", student });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
+
+export const deleteStudent = async (req, res) => {
+  try {
+    const student = await User.findByIdAndDelete(req.params.id);
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    // अगर तुम Enrollment Data भी हटाना चाहते हो
+    await Enrollment.deleteMany({ studentId: req.params.id });
+
+    res.json({ message: "Student deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
   }
 };

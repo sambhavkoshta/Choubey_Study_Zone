@@ -34,20 +34,29 @@ const GalleryPreview = () => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
         closeImage();
+      } else if (event.key === "ArrowRight" && selectedImage !== null) {
+        nextImage();
+      } else if (event.key === "ArrowLeft" && selectedImage !== null) {
+        prevImage();
       }
     };
+    
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [selectedImage]);
 
   const openImage = (index) => {
     setSelectedImage(index);
+    // Prevent scrolling when modal is open
+    document.body.style.overflow = "hidden";
   };
 
   const closeImage = () => {
     setSelectedImage(null);
+    // Re-enable scrolling when modal is closed
+    document.body.style.overflow = "auto";
   };
 
   const nextImage = () => {
@@ -59,27 +68,31 @@ const GalleryPreview = () => {
   };
 
   return (
-    <section className="py-16 bg-gradient-to-r from-blue-700 via-purple-600 to-pink-500 text-white">
-      <div className="max-w-6xl mx-auto px-6">
+    <section className="py-12 md:py-16 bg-gradient-to-r from-blue-700 via-purple-600 to-pink-500 text-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div
-          className="text-center mb-10"
+          className="text-center mb-8 md:mb-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl font-bold">📸 Gallery Highlights</h2>
-          <p className="text-lg text-gray-200 mt-2">
+          <h2 className="text-3xl md:text-4xl font-bold">📸 Gallery Highlights</h2>
+          <p className="text-base md:text-lg text-gray-200 mt-2">
             A glimpse of our most memorable moments.
           </p>
         </motion.div>
 
         {loading ? (
-          <p className="text-center text-white">Loading...</p>
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+          </div>
         ) : error ? (
-          <p className="text-center text-red-300">{error}</p>
+          <div className="bg-red-500 bg-opacity-20 border border-red-400 text-red-100 px-4 py-3 rounded text-center mx-auto max-w-lg">
+            <p>{error}</p>
+          </div>
         ) : (
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ staggerChildren: 0.2 }}
@@ -88,17 +101,22 @@ const GalleryPreview = () => {
               <motion.div
                 key={img._id}
                 className="relative overflow-hidden rounded-xl shadow-lg cursor-pointer group"
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.3 }}
                 onClick={() => openImage(index)}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
               >
-                <img
-                  src={img.url}
-                  alt="Gallery"
-                  className="w-full h-60 object-cover rounded-xl transform transition duration-300 group-hover:scale-110"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <p className="text-white text-lg font-semibold">🔍 View Image</p>
+                <div className="aspect-w-16 aspect-h-9 sm:aspect-w-4 sm:aspect-h-3">
+                  <img
+                    src={img.url}
+                    alt={`Gallery image ${index + 1}`}
+                    className="w-full h-full object-cover transform transition duration-500 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-end p-4">
+                  <p className="text-white text-lg font-semibold mb-2">🔍 View Image</p>
                 </div>
               </motion.div>
             ))}
@@ -106,30 +124,66 @@ const GalleryPreview = () => {
         )}
 
         {/* View More Button */}
-        <div className="text-center mt-10">
+        <div className="text-center mt-8 md:mt-10">
           <button
             onClick={() => navigate("/gallery")}
-            className="bg-white text-indigo-600 px-8 py-3 rounded-full font-semibold text-lg shadow-md hover:bg-indigo-100 transition-transform transform hover:scale-105"
+            className="bg-white text-indigo-600 px-6 py-2 md:px-8 md:py-3 rounded-full font-semibold text-base md:text-lg shadow-md hover:bg-indigo-100 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
           >
             View More Gallery
           </button>
         </div>
       </div>
 
-      {/* Large Image Viewer */}
+      {/* Large Image Viewer Modal */}
       {selectedImage !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <button className="absolute top-5 right-5 text-white text-3xl" onClick={closeImage}>
-            <FaTimes />
-          </button>
-          <button className="absolute left-5 text-white text-3xl" onClick={prevImage}>
-            <FaArrowLeft />
-          </button>
-          <img src={images[selectedImage].url} alt="Large View" className="max-w-4xl max-h-[90vh] rounded-lg shadow-xl" />
-          <button className="absolute right-5 text-white text-3xl" onClick={nextImage}>
-            <FaArrowRight />
-          </button>
-        </div>
+        <motion.div 
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          onClick={closeImage}
+        >
+          <div className="relative w-full h-full flex items-center justify-center p-4" onClick={e => e.stopPropagation()}>
+            <button 
+              className="absolute top-4 right-4 md:top-5 md:right-5 text-white text-2xl md:text-3xl bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70 focus:outline-none transition-all duration-300 z-10" 
+              onClick={closeImage}
+              aria-label="Close image"
+            >
+              <FaTimes />
+            </button>
+            
+            <button 
+              className="absolute left-2 md:left-5 text-white text-xl md:text-3xl bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70 focus:outline-none transition-all duration-300 z-10" 
+              onClick={prevImage}
+              aria-label="Previous image"
+            >
+              <FaArrowLeft />
+            </button>
+            
+            <motion.img 
+              src={images[selectedImage].url} 
+              alt={`Gallery image ${selectedImage + 1}`} 
+              className="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              key={selectedImage}
+            />
+            
+            <button 
+              className="absolute right-2 md:right-5 text-white text-xl md:text-3xl bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70 focus:outline-none transition-all duration-300 z-10" 
+              onClick={nextImage}
+              aria-label="Next image"
+            >
+              <FaArrowRight />
+            </button>
+            
+            {/* Image counter */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-4 py-1 rounded-full text-sm">
+              {selectedImage + 1} / {images.length}
+            </div>
+          </div>
+        </motion.div>
       )}
     </section>
   );

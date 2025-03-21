@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
 
 const studyMaterialSchema = new mongoose.Schema({
-  title: { type: String, required: true },
+  title: { type: String, required: true, trim: true },
+  category: { type: String, enum: ["notes", "videos", "syllabus"], required: true },
   fileUrl: { type: String, required: true },
-  courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
-  uploadedAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now }
 });
 
-const StudyMaterial = mongoose.model("StudyMaterial", studyMaterialSchema);
-export default StudyMaterial;
+export const StudyMaterial= mongoose.model("StudyMaterial", studyMaterialSchema);

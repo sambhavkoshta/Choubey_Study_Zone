@@ -5,6 +5,9 @@ const courseSchema = new mongoose.Schema({
   description: { type: String, required: true },
   price: { type: Number, required: true },
   image: { type: String, required: true }, // Cloudinary URL Store
+  eligibility: [{ type: String }], // Eligibility List
+  examPattern: [{ type: String }], // Exam Pattern List
+  preparationTips: [{ type: String }], // Preparation Tips List
   createdAt: { type: Date, default: Date.now }
 });
 

@@ -1,10 +1,17 @@
 import express from "express";
-import { getFeedbacks, addFeedback } from "../controllers/feedbackController.js";
-// import { protect } from "../middlewares/authMiddleware.js";
+import { addFeedback,getAllFeedbacks, deleteFeedback } from "../controllers/feedbackController.js";
+import { verifyToken } from "../middlewares/auth.js";
+import { protectAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", getFeedbacks);
-// router.post("/", protect, addFeedback);
+// ✅ Student can submit feedback (Only Logged-in Users)
+router.post("/", verifyToken, addFeedback);
+
+// ✅ Admin can get all feedbacks
+router.get("/", protectAdmin, getAllFeedbacks);
+
+// ✅ Admin can delete feedback
+router.delete("/:id", protectAdmin, deleteFeedback);
 
 export default router;

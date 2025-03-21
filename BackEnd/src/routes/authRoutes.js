@@ -9,7 +9,9 @@ import {
   verifyOTP,
   resetPassword, 
   getProfile, 
-  updateProfile 
+  updateProfile,
+  checkEnrollment,
+  getEnrolledCourses
 } from "../controllers/authController.js";
 import { verifyToken } from "../middlewares/auth.js";
 import rateLimit from "express-rate-limit";
@@ -28,6 +30,7 @@ router.post("/register", registerStudent);
 router.post("/login", loginStudent);
 router.post("/forgot-password", otpLimiter, sendResetOTP);
 router.post("/reset-password", resetPassword);
+router.get("/check-enrollment", checkEnrollment);
 
 // ✅ Secure Routes (Only Authenticated Users)
 router.use(verifyToken);
@@ -36,6 +39,8 @@ router.get("/profile", getProfile);
 router.post("/resend-otp", resendOTP);
 router.post("/verify-otp",verifyOTP);
 router.patch("/update-profile", updateProfile);
+router.get("/enrolled-courses/:id", getEnrolledCourses);
+
 router.post("/logout", logout);
 
 export default router;

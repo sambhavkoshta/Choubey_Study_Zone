@@ -46,21 +46,59 @@
 
 // export default ProtectedRoute;
 // src/components/ProtectedRoute.jsx
+// import { Navigate, Outlet } from "react-router-dom";
+
+// const ProtectedRoute = () => {
+//   const userToken = localStorage.getItem("userToken");
+
+//   if (!userToken) {
+//     console.log("🔴 User Not Authenticated! Redirecting to login...");
+//     return <Navigate to="/login" />;
+//   }
+
+//   console.log("✅ User Authenticated! Rendering Dashboard...");
+//   return <Outlet />;
+// };
+
+// export default ProtectedRoute;
+
+
 import { Navigate, Outlet } from "react-router-dom";
+import { useEffect } from "react";
 
 const ProtectedRoute = () => {
-  const userToken = localStorage.getItem("userToken");
+  const token = localStorage.getItem("userToken");
+  const lastActivity = localStorage.getItem("lastActivity");
 
-  if (!userToken) {
-    console.log("🔴 User Not Authenticated! Redirecting to login...");
+  // ⏳ Auto Logout Condition (15 मिनट से ज्यादा Inactive या Tab Minimize)
+  useEffect(() => {
+    const checkActivity = () => {
+      const now = Date.now();
+      if (lastActivity && now - lastActivity > 15 * 60 * 1000) {
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("lastActivity");
+        window.location.href = "/login";
+      }
+    };
+
+    const interval = setInterval(checkActivity, 5000);
+    return () => clearInterval(interval);
+  }, [lastActivity]);
+
+  if (!token) {
     return <Navigate to="/login" />;
   }
 
-  console.log("✅ User Authenticated! Rendering Dashboard...");
   return <Outlet />;
 };
 
 export default ProtectedRoute;
+
+
+
+
+
+
 
 
 
