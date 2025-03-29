@@ -36,7 +36,6 @@ import StudentManagement from "../pages/admin/StudentManagement";
 import ManageCourses from "../pages/admin/ManageCourses";
 import ManageGallery from "../pages/admin/ManageGallery";
 import ManageStudyMaterial from "../pages/admin/ManageStudyMaterial";
-import ManageFaculty from "../pages/admin/ManageFaculty";
 import FeedbackList from "../pages/admin/AdminFeedback";
 import ContactManagement from "../pages/admin/contactManagement";
 
@@ -55,7 +54,6 @@ const AdminRoutes = () => {
         <Route path="/students" element={<StudentManagement />} />
         <Route path="/courses" element={<ManageCourses />} />
         <Route path="/gallery" element={<ManageGallery />} />
-        <Route path="/faculty" element={<ManageFaculty />} />
         <Route path="/materials" element={<ManageStudyMaterial />} />
         <Route path="/feedback" element={<FeedbackList />} />
         <Route path="/contact" element={<ContactManagement/>}/>

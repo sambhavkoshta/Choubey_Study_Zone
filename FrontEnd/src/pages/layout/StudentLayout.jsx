@@ -1,52 +1,77 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import StudentSidebar from "../Student/StudentSidebar";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Bell, User } from "lucide-react";
 
 const StudentLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Handle scroll effect for header
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
-      {/* Mobile Header with Hamburger Menu */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-white shadow-sm">
-        <h1 className="text-xl font-semibold text-blue-700">Student Portal</h1>
-        <button 
-          onClick={toggleSidebar}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring focus:ring-blue-200"
-        >
-          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Sidebar - Mobile (overlay) vs Desktop (side by side) */}
-      <div className={`
-        fixed md:static inset-0 z-20 
-        transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-        md:translate-x-0 transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'bg-black bg-opacity-30 md:bg-opacity-0' : ''}
-      `}>
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Mobile overlay backdrop */}
+      {sidebarOpen && (
         <div 
-          className="w-64 h-full md:h-screen bg-white shadow-lg md:shadow-xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <StudentSidebar onItemClick={() => setSidebarOpen(false)} />
-        </div>
-        {/* Close sidebar when clicking outside on mobile */}
-        <div 
-          className="md:hidden absolute inset-0 -z-10" 
+          className="fixed inset-0 z-20 bg-black bg-opacity-50 md:hidden"
           onClick={toggleSidebar}
         ></div>
+      )}
+
+      {/* Sidebar */}
+      <div 
+        className={`fixed inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <StudentSidebar onItemClick={() => setSidebarOpen(false)} />
       </div>
-      
+
       {/* Main Content */}
-      <div className="flex-1 md:ml-0 transition-all duration-300">
-        <main className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
-          <Outlet />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Header */}
+        <header className={`bg-white px-4 py-3 shadow-sm transition-shadow duration-200 ${
+          scrolled ? "shadow-md" : ""
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <button
+                onClick={toggleSidebar}
+                className="mr-2 rounded-full p-2 text-gray-600 hover:bg-gray-100 md:hidden"
+              >
+                {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+              <div className="flex items-center">
+                <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 text-white shadow-sm">
+                  <span className="font-bold">SP</span>
+                </div>
+                <span className="text-lg font-bold text-gray-800">Student Portal</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content Container */}
+        <main className="flex-1 overflow-auto p-4 md:p-6">
+          <div className="mx-auto max-w-7xl">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

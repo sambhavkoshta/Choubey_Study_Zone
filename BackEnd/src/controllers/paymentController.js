@@ -1,6 +1,7 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import User from "../models/User.js";
+import Enrollment from "../models/Enrollment.js";
 import Payment from "../models/paymentModel.js";
 import Course from "../models/course.model.js";
 import dotenv from "dotenv";
@@ -115,6 +116,79 @@ export const createOrder = async (req, res) => {
 //         res.status(500).json({ success: false, message: "Payment verification failed" });
 //     }
 // };
+// export const verifyPayment = async (req, res) => {
+//     try {
+//         console.log("🔹 Received Data for Verification:", req.body);
+
+//         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, userId, courseId, amount } = req.body;
+
+//         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !amount) {
+//             return res.status(400).json({ success: false, message: "Missing payment details" });
+//         }
+
+//         const body = razorpay_order_id + "|" + razorpay_payment_id;
+//         const expectedSignature = crypto
+//             .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+//             .update(body)
+//             .digest("hex");
+
+//         if (expectedSignature !== razorpay_signature) {
+//             return res.status(400).json({ success: false, message: "Invalid payment signature" });
+//         }
+
+//         console.log("✅ Payment Verified Successfully!");
+
+//         const payment = new Payment({
+//             orderId: razorpay_order_id,
+//             paymentId: razorpay_payment_id,
+//             signature: razorpay_signature,
+//             userId,
+//             courseId,
+//             amount,
+//             status: "Success",
+//         });
+
+//         await payment.save();
+
+//         // // Check if already enrolled
+//         // const existingEnrollment = await Enrollment.findOne({ userId, courseId });
+//         // if (existingEnrollment) {
+//         //     return res.status(400).json({ message: "User already enrolled in this course" });
+//         // }
+
+//         // // Insert Enrollment Data
+//         // const newEnrollment = new Enrollment({
+//         //     userId,
+//         //     courseId,
+//         //     paymentId:,
+//         // });
+
+//         // await newEnrollment.save();
+
+//         // // Update User Model to include enrolled course
+//         // user.enrolledCourses.push(courseId);
+//         // await user.save();
+
+//         // return res.status(201).json({ message: "Enrollment successful", enrollment: newEnrollment });
+
+//         const user = await User.findById(userId);
+//         if (!user) {
+//             return res.status(404).json({ success: false, message: "User not found" });
+//         }
+
+//         if (!user.enrolledCourses.includes(courseId)) {
+//             user.enrolledCourses.push(courseId);
+//             await user.save();
+//         }
+
+//         res.status(200).json({ success: true, message: "Payment successful, course enrolled!" });
+
+//     } catch (error) {
+//         console.error("❌ Payment verification error:", error);
+//         res.status(500).json({ success: false, message: "Payment verification failed" });
+//     }
+// };
+
 export const verifyPayment = async (req, res) => {
     try {
         console.log("🔹 Received Data for Verification:", req.body);
@@ -137,18 +211,33 @@ export const verifyPayment = async (req, res) => {
 
         console.log("✅ Payment Verified Successfully!");
 
+        // ✅ Payment entry create करें
         const payment = new Payment({
-            orderId: razorpay_order_id,
-            paymentId: razorpay_payment_id,
-            signature: razorpay_signature,
             userId,
             courseId,
             amount,
+            paymentId: razorpay_payment_id,
             status: "Success",
         });
 
         await payment.save();
 
+        // ✅ Check करें कि user पहले से enrolled तो नहीं है
+        const existingEnrollment = await Enrollment.findOne({ userId, courseId });
+        if (existingEnrollment) {
+            return res.status(400).json({ success: false, message: "User already enrolled in this course" });
+        }
+
+        // ✅ Enrollment entry create करें
+        const newEnrollment = new Enrollment({
+            userId,
+            courseId,
+            paymentId: payment._id,  // Payment की _id लिंक करें
+        });
+
+        await newEnrollment.save();
+
+        // ✅ User Model में enrolledCourses अपडेट करें
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
@@ -159,10 +248,30 @@ export const verifyPayment = async (req, res) => {
             await user.save();
         }
 
-        res.status(200).json({ success: true, message: "Payment successful, course enrolled!" });
+        res.status(201).json({ success: true, message: "Enrollment successful", enrollment: newEnrollment });
 
     } catch (error) {
         console.error("❌ Payment verification error:", error);
         res.status(500).json({ success: false, message: "Payment verification failed" });
     }
 };
+
+// ✅ Get All Payments & Total Revenue
+export const getAllPayments = async (req, res) => {
+  try {
+    // ✅ Completed Payments लाएं
+    const payments = await Payment.find({ status: "Success" });
+
+    // ✅ Total Revenue Calculate करें
+    // const totalRevenue = payments.reduce((sum, payment) => sum + payment.amount, 0) || 0;
+
+    res.status(200).json({
+    //   totalRevenue,
+      payments
+    });
+  } catch (error) {
+    console.error("Error fetching payments:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

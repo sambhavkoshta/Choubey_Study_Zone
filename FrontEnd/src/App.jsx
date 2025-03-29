@@ -162,7 +162,7 @@ function App() {
             <>
               <Navbar isLoggedIn={isLoggedIn} />
               <ScrollToTop/>
-              <main className="container mx-auto px-4 py-6 bg-white shadow-md rounded-lg">
+              <main className="container mx-auto px-4 py-6 bg-white shadow-md rounded-lg pt-24">
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/" element={<Home />} />

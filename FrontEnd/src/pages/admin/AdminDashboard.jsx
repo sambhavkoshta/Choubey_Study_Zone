@@ -1,84 +1,144 @@
-// import { useEffect, useState } from "react";
-// import { getAdminStats } from "../../api";
-// import { Users, BookOpen, Image, FileText, MessageSquare, Phone, UserCheck } from "lucide-react";
-// import { motion } from "framer-motion";
-
-// const AdminDashboard = () => {
-//   const [stats, setStats] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchStats = async () => {
-//       try {
-//         const response = await getAdminStats();
-//         setStats(response.data);
-//       } catch (error) {
-//         console.error("Error fetching stats:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchStats();
-//   }, []);
-
-//   if (loading) {
-//     return <div className="p-6 text-center text-xl">Loading Dashboard...</div>;
-//   }
-
-//   const statsData = [
-//     { name: "Total Students", count: stats.totalStudents, icon: <Users size={28} />, color: "bg-blue-600" },
-//     { name: "Total Courses", count: stats.totalCourses, icon: <BookOpen size={28} />, color: "bg-green-600" },
-//     { name: "Gallery Images", count: stats.galleryImages, icon: <Image size={28} />, color: "bg-yellow-500" },
-//     { name: "Study Materials", count: stats.studyMaterials, icon: <FileText size={28} />, color: "bg-purple-600" },
-//     { name: "Feedback Received", count: stats.feedbackReceived, icon: <MessageSquare size={28} />, color: "bg-red-500" },
-//     { name: "Contact Queries", count: stats.contactQueries, icon: <Phone size={28} />, color: "bg-orange-500" },
-//     { name: "Total Faculty", count: stats.totalFaculty, icon: <UserCheck size={28} />, color: "bg-indigo-500" },
-//   ];
-
-//   return (
-//     <div className="p-6 min-h-screen bg-gray-100">
-//       {/* Header */}
-//       <motion.h1
-//         initial={{ opacity: 0, y: -10 }}
-//         animate={{ opacity: 1, y: 0 }}
-//         transition={{ duration: 0.6 }}
-//         className="text-3xl font-bold text-gray-800 mb-6"
-//       >
-//         Welcome to Admin Dashboard
-//       </motion.h1>
-
-//       {/* Stats Cards */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-//         {statsData.map((item, index) => (
-//           <motion.div
-//             key={index}
-//             initial={{ opacity: 0, scale: 0.85 }}
-//             animate={{ opacity: 1, scale: 1 }}
-//             transition={{ duration: 0.5, delay: index * 0.1 }}
-//             whileHover={{ scale: 1.05 }}
-//             className={`p-6 rounded-lg shadow-lg text-white flex items-center gap-4 transition-all duration-300 ${item.color}`}
-//           >
-//             <div className="p-4 bg-white bg-opacity-25 rounded-full flex items-center justify-center">
-//               {item.icon}
-//             </div>
-//             <div>
-//               <h2 className="text-2xl font-semibold">{item.count}</h2>
-//               <p className="text-md">{item.name}</p>
-//             </div>
-//           </motion.div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default AdminDashboard;
+// src/pages/admin/AdminDashboard.jsx
+import React, { useEffect, useState } from "react";
+import API from "../../api";
 
 
 const AdminDashboard = () => {
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalCourses: 0,
+    totalEnrollments: 0,
+    totalRevenue: 0,
+    recentEnrollments: [],
+  });
+  const [loading, setLoading] = useState(true);
+  const adminToken = localStorage.getItem("adminToken");
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        // Get total students
+        const studentsRes = await API.get("/admin/students", {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+        // Get total courses
+        const coursesRes = await API.get("/courses");
+        // Get enrollments (you'll need to implement this endpoint)
+        const enrollmentsRes = await API.get("/enrollments", {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+        // Get payments (you'll need to implement this endpoint)
+        const paymentsRes = await API.get("/payments");
+
+        setStats({
+          totalStudents: studentsRes.data.length || 0,
+          totalCourses: coursesRes.data.length || 0,
+          totalEnrollments: enrollmentsRes?.data?.length || 0,
+          totalRevenue : paymentsRes.data?.payments?.reduce(
+            (sum, payment) => sum + payment.amount, 0
+        ) || 0,
+          recentEnrollments: enrollmentsRes.data.slice(0, 5).map((enrollment) => ({
+          student: `${enrollment.userId.firstname} ${enrollment.userId.lastname}`,
+          courseName: enrollment.courseId.title,
+          enrollmentDate: enrollment.enrolledAt,
+          status: enrollment.paymentId.status, 
+        })),
+        });
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+
   return (
-    <h1>AdminDashboard</h1>
-  )
-}
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+
+      {loading ? (
+        <div className="text-center py-10">Loading...</div>
+      ) : (
+        <>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
+              <p className="text-gray-500">Total Students</p>
+              <p className="text-2xl font-bold">{stats.totalStudents}</p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
+              <p className="text-gray-500">Total Courses</p>
+              <p className="text-2xl font-bold">{stats.totalCourses}</p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
+              <p className="text-gray-500">Total Enrollments</p>
+              <p className="text-2xl font-bold">{stats.totalEnrollments}</p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-4 border-l-4 border-purple-500">
+              <p className="text-gray-500">Total Revenue</p>
+              <p className="text-2xl font-bold">₹{stats.totalRevenue.toLocaleString()}</p>
+            </div>
+          </div>
+
+
+          {/* Recent Enrollments */}
+          <div className="bg-white rounded-lg shadow p-4">
+            <h2 className="text-lg font-semibold mb-4">Recent Enrollments</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Student
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Course
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {stats.recentEnrollments.length > 0 ? (
+                    stats.recentEnrollments.map((enrollment, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap">{enrollment.student}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">{enrollment.courseName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {new Date(enrollment.enrollmentDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 rounded text-xs ${
+                            enrollment.status === "active" 
+                              ? "bg-green-100 text-green-800" 
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}>
+                            {enrollment.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="px-6 py-4 text-center">No recent enrollments</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
 export default AdminDashboard;

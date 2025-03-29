@@ -183,6 +183,21 @@ export const fetchStudentData = async () => {
   return response.data;
 };
 
+export const uploadStudyMaterial = async (formData, token) => {
+  return API.post(`/study-material/upload`, formData, {
+    headers: { Authorization: token, "Content-Type": "multipart/form-data" },
+  });
+};
+
+export const getAllStudyMaterials = async () => {
+  return API.get(`/study-material`);
+};
+
+export const deleteStudyMaterial = async (id, token) => {
+  return API.delete(`/study-material/${id}`, {
+    headers: { Authorization: token },
+  });
+};
 
 export default API;
 

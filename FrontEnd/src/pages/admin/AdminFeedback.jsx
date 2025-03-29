@@ -60,51 +60,90 @@ const AdminFeedback = () => {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Feedback Management</h2>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
+          Feedback Management
+        </h2>
+        <div className="mt-2 md:mt-0">
+          <span className="text-sm font-medium text-gray-500">
+            Showing page {currentPage} of {totalPages}
+          </span>
+        </div>
+      </div>
 
+      {/* Content Section */}
       {loading ? (
-        <div className="flex justify-center items-center py-10">
-          <AiOutlineLoading3Quarters className="animate-spin text-4xl text-blue-500" />
+        <div className="flex justify-center items-center py-16">
+          <AiOutlineLoading3Quarters className="animate-spin text-4xl text-blue-600" />
         </div>
       ) : (
-        <>
+        <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
           {/* ✅ Responsive Table */}
-          <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-            <table className="w-full min-w-max border border-gray-200">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-full divide-y divide-gray-200">
               <thead>
-                <tr className="bg-blue-600 text-white">
-                  <th className="border p-3">User</th>
-                  <th className="border p-3">Message</th>
-                  <th className="border p-3">Rating</th>
-                  <th className="border p-3">Action</th>
+                <tr>
+                  <th className="px-6 py-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    User
+                  </th>
+                  <th className="px-6 py-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Message
+                  </th>
+                  <th className="px-6 py-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Rating
+                  </th>
+                  <th className="px-6 py-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                  </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-gray-200">
                 {feedbacks.length > 0 ? (
                   feedbacks.map((feedback) => (
-                    <tr key={feedback._id} className="hover:bg-gray-50 transition">
-                      <td className="border p-3 flex items-center gap-2">
-                        <FaUserCircle className="text-gray-500 text-lg" />
-                        {feedback.user?.firstname} {feedback.user?.lastname}
+                    <tr key={feedback._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                            <FaUserCircle className="text-gray-400 text-lg" />
+                          </div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {feedback.user?.firstname} {feedback.user?.lastname}
+                          </div>
+                        </div>
                       </td>
-                      <td className="border p-3">{feedback.message}</td>
-                      <td className="border p-3 flex items-center gap-1">
-                        {feedback.rating} <FaStar className="text-yellow-500" />
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-700 max-w-md truncate">{feedback.message}</div>
                       </td>
-                      <td className="border p-3">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-1">
+                          <span className="text-sm font-medium">{feedback.rating}</span>
+                          <FaStar className="text-yellow-400" />
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <button
                           onClick={() => confirmDelete(feedback._id)}
-                          className="bg-red-500 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-red-600 transition"
+                          className="bg-red-50 text-red-600 hover:bg-red-100 transition-colors px-3 py-2 rounded-md text-sm font-medium flex items-center space-x-1"
                         >
-                          <FaTrash /> Delete
+                          <FaTrash className="text-xs" />
+                          <span>Delete</span>
                         </button>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="text-center p-4 text-gray-500">No feedbacks available</td>
+                    <td colSpan="4" className="px-6 py-12 text-center">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <div className="text-gray-400 text-lg">
+                          <FaStar className="w-12 h-12 mx-auto opacity-20" />
+                        </div>
+                        <p className="text-gray-500 text-lg font-medium">No feedbacks available</p>
+                        <p className="text-gray-400 text-sm">Feedbacks will appear here when users submit them</p>
+                      </div>
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -112,37 +151,65 @@ const AdminFeedback = () => {
           </div>
 
           {/* ✅ Pagination */}
-          <div className="flex justify-between mt-4">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
-              className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 transition"
-            >
-              Previous
-            </button>
-            <span>Page {currentPage} of {totalPages}</span>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
-              className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50 transition"
-            >
-              Next
-            </button>
-          </div>
-        </>
+          {totalPages > 1 && (
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(currentPage - 1)}
+                className="flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+              <div className="hidden md:flex items-center space-x-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-4 py-2 border text-sm font-medium rounded-md ${
+                      currentPage === page
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    } transition-colors`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(currentPage + 1)}
+                className="flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
       )}
 
       {/* ✅ Delete Confirmation Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96 transition-all">
-            <h3 className="text-lg font-semibold mb-4">Confirm Deletion</h3>
-            <p className="text-gray-600 mb-4">Are you sure you want to delete this feedback?</p>
-            <div className="flex justify-end gap-2">
-              <button onClick={closeModal} className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-100 transition">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md transform transition-all animate-fade-in">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h3 className="text-lg font-medium text-gray-900">Confirm Deletion</h3>
+            </div>
+            <div className="px-6 py-4">
+              <p className="text-gray-600">
+                Are you sure you want to delete this feedback? This action cannot be undone.
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3 rounded-b-lg">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+              >
                 Cancel
               </button>
-              <button onClick={deleteFeedback} className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
+              <button
+                onClick={deleteFeedback}
+                className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
+              >
                 Delete
               </button>
             </div>

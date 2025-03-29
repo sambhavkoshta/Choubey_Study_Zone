@@ -1,99 +1,320 @@
-import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { 
-  Menu, X, Home, BookOpen, Users, Image, 
-  FileText, MessageSquare, Phone, UserCheck, 
-  LogOut
+  Home, BookOpen, Users, Image, FileText, 
+  MessageSquare, Phone, UserCheck, LogOut, 
+  ChevronRight, Settings
 } from "lucide-react";
+import API from "../api";
 
-const AdminSidebar = ({ isOpen, setIsOpen, isMobile }) => {
+const AdminSidebar = ({ onItemClick }) => {
+  const [expandedSections, setExpandedSections] = useState({});
+  const [adminData, setAdminData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
-  
+  const navigate = useNavigate();
+
   const menuItems = [
-    { name: "Dashboard", path: "/admin", icon: <Home size={20} /> },
-    { name: "Manage Courses", path: "/admin/courses", icon: <BookOpen size={20} /> },
-    { name: "Manage Students", path: "/admin/students", icon: <Users size={20} /> },
-    { name: "Manage Gallery", path: "/admin/gallery", icon: <Image size={20} /> },
-    { name: "Manage Study Materials", path: "/admin/materials", icon: <FileText size={20} /> },
-    { name: "Manage Feedback", path: "/admin/feedback", icon: <MessageSquare size={20} /> },
-    { name: "Manage Contact", path: "/admin/contact", icon: <Phone size={20} /> },
-    { name: "Manage Faculty", path: "/admin/faculty", icon: <UserCheck size={20} /> },
+    { 
+      title: "Dashboard", 
+      path: "/admin", 
+      icon: <Home size={18} />,
+      exact: true 
+    },
+    { 
+      title: "Student Management", 
+      isSection: true,
+      icon: <Users size={18} />,
+      items: [
+        { 
+          title: "All Students", 
+          path: "/admin/students", 
+          icon: <Users size={16} /> 
+        },
+        { 
+          title: "Student Feedback", 
+          path: "/admin/feedback", 
+          icon: <MessageSquare size={16} /> 
+        }
+      ]
+    },
+    { 
+      title: "Course Management", 
+      isSection: true,
+      icon: <BookOpen size={18} />,
+      items: [
+        { 
+          title: "All Courses", 
+          path: "/admin/courses", 
+          icon: <BookOpen size={16} /> 
+        },
+        { 
+          title: "Study Materials", 
+          path: "/admin/materials", 
+          icon: <FileText size={16} /> 
+        }
+      ]
+    },
+    { 
+      title: "Content", 
+      isSection: true,
+      icon: <Image size={18} />,
+      items: [
+        { 
+          title: "Gallery", 
+          path: "/admin/gallery", 
+          icon: <Image size={16} /> 
+        },
+        { 
+          title: "Contact Inquiries", 
+          path: "/admin/contact", 
+          icon: <Phone size={16} /> 
+        }
+      ]
+    }
   ];
 
-  // For mobile: hidden when closed, full width when open
-  // For desktop: narrow width when closed, normal width when open
-  const sidebarClasses = isMobile
-    ? `fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-50
-       bg-blue-700 text-white shadow-xl flex flex-col
-       ${isOpen ? "translate-x-0 w-64" : "-translate-x-full"}`
-    : `relative h-screen transition-all duration-300 ease-in-out z-10
-       bg-blue-700 text-white shadow-xl flex flex-col
-       ${isOpen ? "w-64" : "w-20"}`;
+  // Fetch admin data from backend
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      setLoading(true);
+      try {
+        // Get the authentication token from localStorage
+        const token = localStorage.getItem('adminToken');
+        
+        if (!token) {
+          // If no token exists, redirect to login
+          navigate('/admin/login');
+          return;
+        }
 
-  return (
-    <div className={sidebarClasses}>
-      {/* Sidebar Header */}
-      <div className="flex items-center justify-between h-16 px-4 border-b border-blue-600/50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
-            <span className="text-blue-700 font-bold text-xl">A</span>
-          </div>
-          {(isOpen || !isMobile) && (
-            <h1 className="text-lg font-bold text-white">
-              {isOpen ? "Admin Portal" : ""}
-            </h1>
+        const response = await API.get('/admin/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        setAdminData(response.data);
+      } catch (error) {
+        console.error('Failed to fetch admin data:', error);
+        
+        // Handle authentication errors
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          // Clear invalid token and redirect to login
+          localStorage.removeItem('adminToken');
+          navigate('/admin/login');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdminData();
+  }, [navigate]);
+
+  // Auto-expand section based on current path
+  useEffect(() => {
+    const newExpandedSections = { ...expandedSections };
+    
+    menuItems.forEach(item => {
+      if (item.isSection && item.items) {
+        const shouldExpand = item.items.some(subItem => 
+          location.pathname === subItem.path || 
+          location.pathname.startsWith(subItem.path + '/')
+        );
+        
+        if (shouldExpand) {
+          newExpandedSections[item.title] = true;
+        }
+      }
+    });
+    
+    setExpandedSections(newExpandedSections);
+  }, [location.pathname]);
+
+  const toggleSection = (title) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [title]: !prev[title]
+    }));
+  };
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const token = localStorage.getItem('adminToken');
+      
+      // Call logout API endpoint
+      await API.post('/admin/logout', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Clean up local storage
+      localStorage.removeItem('adminToken');
+      
+      // Redirect to login page
+      navigate('/admin/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      
+      // Even if the API call fails, we should still clear local storage and redirect
+      localStorage.removeItem('adminToken');
+      navigate('/admin/login');
+    }
+  };
+
+  const renderNavItem = (item) => {
+    if (item.isSection) {
+      const isExpanded = expandedSections[item.title];
+      
+      return (
+        <div key={item.title} className="mb-1">
+          <button 
+            onClick={() => toggleSection(item.title)}
+            className="flex w-full items-center justify-between rounded-md px-3 py-2 text-gray-200 hover:bg-indigo-800 transition-colors"
+          >
+            <div className="flex items-center">
+              <span className="mr-3">{item.icon}</span>
+              <span>{item.title}</span>
+            </div>
+            <ChevronRight 
+              size={16} 
+              className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} 
+            />
+          </button>
+          
+          {isExpanded && (
+            <div className="ml-3 mt-1 space-y-1 border-l border-indigo-700 pl-3">
+              {item.items.map(subItem => (
+                <NavLink
+                  key={subItem.path}
+                  to={subItem.path}
+                  onClick={onItemClick}
+                  className={({ isActive }) => 
+                    `flex items-center px-3 py-2 rounded-md transition-colors ${
+                      isActive 
+                        ? 'bg-indigo-700 text-white' 
+                        : 'text-gray-300 hover:bg-indigo-800 hover:text-white'
+                    }`
+                  }
+                >
+                  <span className="mr-3">{subItem.icon}</span>
+                  <span className="text-sm">{subItem.title}</span>
+                </NavLink>
+              ))}
+            </div>
           )}
         </div>
-        {isMobile && (
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-2 rounded-md hover:bg-blue-600 transition-all duration-300 text-white"
-            aria-label="Close sidebar"
-          >
-            <X size={20} />
-          </button>
-        )}
-      </div>
+      );
+    }
+    
+    return (
+      <NavLink
+        key={item.path}
+        to={item.path}
+        end={item.exact}
+        onClick={onItemClick}
+        className={({ isActive }) => 
+          `flex items-center px-3 py-2 rounded-md transition-colors ${
+            isActive 
+              ? 'bg-indigo-700 text-white' 
+              : 'text-gray-300 hover:bg-indigo-800 hover:text-white'
+          }`
+        }
+      >
+        <span className="mr-3">{item.icon}</span>
+        <span>{item.title}</span>
+      </NavLink>
+    );
+  };
 
-      {/* Menu Items */}
-      <div className="flex-1 overflow-y-auto py-4 px-3">
-        <ul className="space-y-2">
-          {menuItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={`flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 
-                  ${isActive 
-                    ? "bg-white text-blue-700 font-medium" 
-                    : "hover:bg-blue-600 text-white"}`}
-                  onClick={() => isMobile && setIsOpen(false)}
-                >
-                  <div className={`flex items-center justify-center ${isActive ? "text-blue-700" : ""}`}>
-                    {item.icon}
-                  </div>
-                  {isOpen && (
-                    <span className="text-base font-medium">
-                      {item.name}
-                    </span>
-                  )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+  const getInitials = (admin) => {
+    if (!admin) return 'A';
+    
+    const firstName = admin.firstname || '';
+    const lastName = admin.lastname || '';
+    
+    if (firstName && lastName) {
+      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (admin.name) {
+      const nameParts = admin.name.split(' ');
+      if (nameParts.length > 1) {
+        return `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase();
+      }
+      return admin.name.charAt(0).toUpperCase();
+    }
+    
+    return 'A';
+  };
 
-      {/* Bottom Section */}
-      <div className="p-4 border-t border-blue-600/50 mt-auto">
+  return (
+    <div className="flex h-full flex-col bg-gradient-to-b from-indigo-900 to-indigo-950">
+      {/* Logo & Header */}
+      <div className="border-b border-indigo-800 p-4">
+        <div className="flex items-center justify-center space-x-2 py-2">
+          <div className="rounded-full bg-white p-2">
+            <Settings size={20} className="text-indigo-900" />
+          </div>
+          <h2 className="text-xl font-bold text-white">Admin Portal</h2>
+        </div>
+      </div>
+      
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
+        {menuItems.map(item => renderNavItem(item))}
+      </nav>
+      
+      {/* User Profile & Logout */}
+      <div className="border-t border-indigo-800 p-4">
+        <div className="mb-3 flex items-center space-x-3 rounded-md bg-indigo-800 bg-opacity-30 p-2">
+          {loading ? (
+            <>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-700">
+                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              <div className="flex-1">
+                <div className="h-4 w-24 animate-pulse rounded bg-indigo-700 bg-opacity-40 mb-1"></div>
+                <div className="h-3 w-32 animate-pulse rounded bg-indigo-700 bg-opacity-30"></div>
+              </div>
+            </>
+          ) : adminData ? (
+            <>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-700">
+                <span className="text-sm font-medium text-white">{getInitials(adminData)}</span>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white truncate max-w-[140px]">
+                  {adminData.firstname && adminData.lastname 
+                    ? `${adminData.firstname} ${adminData.lastname}`
+                    : adminData.name || 'Admin'}
+                </p>
+                <p className="text-xs text-gray-300 truncate max-w-[140px]">{adminData.email}</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-700">
+                <Users size={16} className="text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">Administrator</p>
+                <p className="text-xs text-gray-300">admin@example.com</p>
+              </div>
+            </>
+          )}
+        </div>
+        
         <button
-          onClick={() => console.log("Logout clicked")}
-          className="w-full flex items-center gap-4 px-4 py-3 rounded-lg 
-          text-white hover:bg-red-600 transition-all duration-200"
+          onClick={handleLogout}
+          className="flex w-full items-center rounded-md px-3 py-2 text-gray-300 hover:bg-indigo-800 hover:text-white transition-colors"
         >
-          <LogOut size={20} />
-          {isOpen && <span className="text-base font-medium">Logout</span>}
+          <LogOut size={18} className="mr-3" />
+          <span>Logout</span>
         </button>
       </div>
     </div>

@@ -6,7 +6,7 @@ import Hero from './Hero';
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-100 via-white to-gray-100">
+    <div className="min-h-screen bg-gradient-to-b from-blue-100 via-white to-gray-100 ">
       {/* Hero Section - Slider */}
       <Hero />
 

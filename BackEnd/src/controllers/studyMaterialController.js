@@ -15,30 +15,8 @@ export const getStudyMaterials = async (req, res) => {
 };
 
 // 📌 Add Study Material (Admin Only)
-// export const addStudyMaterial = async (req, res) => {
-//   try {
-//     const { title, category } = req.body;
-
-//     if (!title || !category || !req.file) {
-//       return res.status(400).json({ error: "All fields are required!" });
-//     }
-
-//     // ✅ Save Study Material in DB
-//     const newStudyMaterial = new StudyMaterial({
-//       title,
-//       category,
-//       fileUrl: req.file.path, // ✅ Store file URL
-//     });
-
-//     await newStudyMaterial.save();
-//     res.status(201).json({ message: "Study Material added successfully!", newStudyMaterial });
-//   } catch (error) {
-//     res.status(500).json({ error: "Server Error!" });
-//   }
-// };
-
 export const addStudyMaterial = async (req, res) => {
-   try {
+  try {
     const { title, category } = req.body;
 
     if (!title || !category || !req.file) {
@@ -65,7 +43,6 @@ export const addStudyMaterial = async (req, res) => {
   }
 };
 
-
 // 📌 Update Study Material (Admin Only)
 export const updateStudyMaterial = async (req, res) => {
   try {
@@ -79,7 +56,7 @@ export const updateStudyMaterial = async (req, res) => {
 
     // ✅ Delete old file from Cloudinary if a new file is uploaded
     if (req.file) {
-      const fileId = studyMaterial.fileUrl.split("/").pop().split(".")[0];
+      const fileId = studyMaterial.fileUrl.split("/").slice(-2).join("/"); // ✅ More reliable Cloudinary ID extraction
       await cloudinary.uploader.destroy(fileId);
       studyMaterial.fileUrl = req.file.path;
     }
@@ -102,7 +79,7 @@ export const deleteStudyMaterial = async (req, res) => {
     if (!material) return res.status(404).json({ error: "Study material not found" });
 
     // ✅ Delete file from Cloudinary
-    const fileId = material.fileUrl.split("/").pop().split(".")[0];
+    const fileId = material.fileUrl.split("/").slice(-2).join("/"); // ✅ Safer way to extract Cloudinary ID
     await cloudinary.uploader.destroy(fileId);
 
     await material.deleteOne();

@@ -21,29 +21,6 @@ export const createCourse = async (req, res) => {
   }
 };
 
-// ✅ 1. Create a Course (Updated)
-// export const createCourse = async (req, res) => {
-//   try {
-//     const { title, description, price, eligibility, examPattern, preparationTips } = req.body;
-//     const result = await cloudinary.uploader.upload(req.file.path); // Upload Image to Cloudinary
-
-//     const newCourse = new Course({
-//       title,
-//       description,
-//       price,
-//       image: result.secure_url, // Save Cloudinary Image URL
-//       eligibility: eligibility ? JSON.parse(eligibility) : [], // Convert string to array
-//       examPattern: examPattern ? JSON.parse(examPattern) : [],
-//       preparationTips: preparationTips ? JSON.parse(preparationTips) : [],
-//     });
-
-//     await newCourse.save();
-//     res.status(201).json({ success: true, message: "Course created successfully", newCourse });
-//   } catch (error) {
-//     console.error("❌ Error creating course:", error);
-//     res.status(500).json({ success: false, message: "Server Error", error });
-//   }
-// };
 
 
 // ✅ 2. Get All Courses

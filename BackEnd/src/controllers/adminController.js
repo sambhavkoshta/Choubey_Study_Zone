@@ -6,13 +6,10 @@ import { generateAccessToken, generateRefreshToken } from "../utils/generateToke
 import { sendOTP } from "../config/mailer.js";
 
 
-// import User from "../models/User.js";
 import Course from "../models/course.model.js";
 import Gallery from "../models/galleryModel.js"
-// import StudyMaterial from "../models/StudyMaterial.js";
 import Feedback from "../models/Feedback.js";
 import Contact from "../models/Contact.js";
-import Faculty from "../models/Faculty.js";
 
 // 📌 Admin Login
 export const loginAdmin = async (req, res) => {

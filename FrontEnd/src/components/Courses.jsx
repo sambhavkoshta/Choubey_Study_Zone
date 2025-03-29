@@ -193,7 +193,45 @@ const Courses = () => {
           isLoggedIn={isLoggedIn}
         />
       )}
+      <ScrollToTopButton></ScrollToTopButton>
     </motion.div>
+  );
+};
+
+const ScrollToTopButton = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  // Show button when page is scrolled down
+  useEffect(() => {
+    const toggleVisibility = () => {
+      if (window.pageYOffset > 300) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
+    
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
+  }, []);
+  
+  // Scroll to top function
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+  
+  return (
+    <button
+      onClick={scrollToTop}
+      className={`fixed bottom-4 right-4 bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 transform hover:scale-110 hover:bg-blue-700 z-50 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
+      }`}
+    >
+      <span className="text-lg">↑</span>
+    </button>
   );
 };
 

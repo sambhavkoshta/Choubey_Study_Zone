@@ -1,88 +1,112 @@
-import { Outlet } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import AdminSidebar from "../../components/AdminSidebar";
-import { useEffect, useState } from "react";
+import { Menu, X, Bell } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { IoMenu } from "react-icons/io5";
 
 const AdminLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { admin } = useAuth();
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
 
-  // Check screen size
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      
-      // Only auto-close sidebar on mobile when first loading or resizing to mobile
-      if (mobile && window.innerWidth < 1024) {
-        setIsSidebarOpen(false);
-      } else if (!mobile) {
-        // Always keep sidebar open on desktop
-        setIsSidebarOpen(true);
-      }
-    };
-
-    // Initial check
-    handleResize();
-    
-    // Listen for window resize
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  // Authentication check
+  // Check if admin is logged in
   useEffect(() => {
     if (!admin) {
       navigate("/admin/login");
     }
   }, [admin, navigate]);
 
+  // Handle scroll effect for header
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  // Handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      setSidebarOpen(window.innerWidth >= 768);
+    };
+    
+    // Set initial state
+    handleResize();
+    
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-100">
-      {/* Overlay for mobile when sidebar is open */}
-      {isMobile && isSidebarOpen && (
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Mobile overlay backdrop */}
+      {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 transition-opacity duration-300"
-          onClick={() => setIsSidebarOpen(false)}
-        />
+          className="fixed inset-0 z-20 bg-black bg-opacity-50 md:hidden"
+          onClick={toggleSidebar}
+        ></div>
       )}
 
       {/* Sidebar */}
-      <AdminSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} isMobile={isMobile} />
+      <div 
+        className={`fixed inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <AdminSidebar onItemClick={() => {
+          if (window.innerWidth < 768) {
+            setSidebarOpen(false);
+          }
+        }} />
+      </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Navbar / Header */}
-        <header className="flex items-center justify-between p-4 bg-white shadow-sm z-10">
-          <div className="flex items-center">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 mr-4 text-gray-700 rounded-lg hover:bg-gray-100 focus:outline-none transition-all duration-200"
-              aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
-            >
-              <IoMenu size={24} />
-            </button>
-            <h1 className="text-xl font-semibold text-gray-800">Admin Dashboard</h1>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-600 hidden sm:block">Admin User</span>
-            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center">
-              A
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Header */}
+        <header className={`bg-white px-4 py-3 shadow-sm transition-shadow duration-200 ${
+          scrolled ? "shadow-md" : ""
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <button
+                onClick={toggleSidebar}
+                className="mr-2 rounded-full p-2 text-gray-600 hover:bg-gray-100 md:hidden"
+              >
+                {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+              <div className="flex items-center">
+                <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 text-white shadow-sm">
+                  <span className="font-bold">A</span>
+                </div>
+                <span className="text-lg font-bold text-gray-800">Admin Portal</span>
+              </div>
             </div>
+
+            {/* Header right content - notifications or settings */}
+            {/* <div className="flex items-center space-x-3">
+              <button className="rounded-full p-2 text-gray-600 hover:bg-gray-100 relative">
+                <Bell size={20} />
+                <span className="absolute top-0 right-0 flex h-2 w-2">
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                </span>
+              </button>
+            </div> */}
           </div>
         </header>
-        
-        {/* Page Content */}
-        <main className="flex-1 p-6 overflow-auto">
-          <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-6 min-h-[calc(100vh-10rem)]">
+
+        {/* Main Content Container */}
+        <main className="flex-1 overflow-auto p-4 md:p-6">
+          <div className="mx-auto max-w-7xl">
             <Outlet />
           </div>
         </main>
