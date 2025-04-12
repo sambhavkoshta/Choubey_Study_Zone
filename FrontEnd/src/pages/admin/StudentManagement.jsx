@@ -3,7 +3,6 @@ import { FaUserGraduate, FaExclamationTriangle,FaEdit } from "react-icons/fa";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 const StudentManagement = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,13 +12,9 @@ const StudentManagement = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [formData, setFormData] = useState({ firstname: "", lastname: "", email: "" });
-
   const [currentPage, setCurrentPage] = useState(1);
   const studentsPerPage = 5;
-
   const token = localStorage.getItem("adminToken");
-
-  // Fetch students
   const fetchStudents = async () => {
     try {
       const response = await fetch("http://localhost:7000/api/admin/students", {
@@ -38,18 +33,13 @@ const StudentManagement = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchStudents();
   }, []);
-
-  // Open delete confirmation modal
   const confirmDelete = (id) => {
     setDeleteId(id);
     setDeleteModal(true);
   };
-
-  // Delete student function
   const handleDelete = async () => {
     try {
       const response = await fetch(`http://localhost:7000/api/admin/students/${deleteId}`, {
@@ -65,8 +55,6 @@ const StudentManagement = () => {
       setDeleteModal(false);
     }
   };
-
-  // Open edit modal
   const openEditModal = (student) => {
     setEditingStudent(student);
     setFormData({
@@ -76,13 +64,9 @@ const StudentManagement = () => {
     });
     setShowModal(true);
   };
-
-  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  // Handle update student
   const handleUpdate = async () => {
     try {
       const response = await fetch(`http://localhost:7000/api/admin/students/${editingStudent._id}`, {
@@ -93,7 +77,6 @@ const StudentManagement = () => {
         },
         body: JSON.stringify(formData),
       });
-
       if (!response.ok) throw new Error("Failed to update student.");
       setStudents(students.map((stu) => (stu._id === editingStudent._id ? { ...stu, ...formData } : stu)));
       toast.success("Student updated successfully!");
@@ -102,15 +85,12 @@ const StudentManagement = () => {
       toast.error("Error updating student: " + err.message);
     }
   };
-
   const indexOfLastStudent = currentPage * studentsPerPage;
   const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
   const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
-
   if (loading) return <p className="text-center text-gray-600">Loading students...</p>;
   if (error) return <p className="text-center text-red-500">Error: {error}</p>;
   if (students.length === 0) return <p className="text-center text-gray-500">No students found.</p>;
-
   return (
     <div className="max-w-6xl mx-auto p-6">
       <ToastContainer />
@@ -124,9 +104,7 @@ const StudentManagement = () => {
                 {student.firstname} {student.lastname}
               </h3>
             </div>
-
             <p className="text-sm text-gray-600">📧 {student.email}</p>
-
             <p className="text-sm text-gray-600 font-semibold mt-2">📚 Enrolled Courses:</p>
             <div className="flex flex-wrap gap-2 mt-1">
               {student.enrolledCourses && student.enrolledCourses.length > 0 ? (
@@ -139,7 +117,6 @@ const StudentManagement = () => {
                 <span className="text-gray-500 text-sm">No courses enrolled</span>
               )}
             </div>
-
             <div className="flex justify-end mt-4 space-x-2">
               <button onClick={() => openEditModal(student)} className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition flex items-center">
                 <FiEdit className="mr-2" /> Edit
@@ -151,8 +128,6 @@ const StudentManagement = () => {
           </div>
         ))}
       </div>
-
-      {/* Pagination */}
       <div className="flex justify-center mt-4">
         {[...Array(Math.ceil(students.length / studentsPerPage))].map((_, index) => (
           <button
@@ -164,8 +139,6 @@ const StudentManagement = () => {
           </button>
         ))}
       </div>
-
-       {/* Edit Student Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-8 rounded-lg shadow-xl w-96 transform scale-105 transition-all">
@@ -186,9 +159,6 @@ const StudentManagement = () => {
           </div>
         </div>
       )}
-
-      {/* Delete Confirmation Modal */}
-            {/* Delete Confirmation Modal */}
       {deleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-8 rounded-lg shadow-xl w-96 transform scale-105 transition-all">
@@ -213,5 +183,4 @@ const StudentManagement = () => {
     </div>
   );
 };
-
 export default StudentManagement;

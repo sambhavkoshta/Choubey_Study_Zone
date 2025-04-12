@@ -16,34 +16,24 @@ import studyMaterialRoutes from "./routes/studyMaterialRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import enrollmentRoutes from "./routes/enrollmentRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
-
-
 dotenv.config();
-
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
 app.use(cookieParser());
-app.use(mongoSanitize()); // Prevent NoSQL Injection
-app.use(helmet()); // Secure HTTP Headers
-app.use(xssClean()); // Prevent Cross-site Scripting
+app.use(mongoSanitize());
+app.use(helmet());
+app.use(xssClean());
 app.use(
   cors({
-    origin: "http://localhost:5173", // Frontend URL
-    credentials: true, // Allow Cookies
-    methods: ["GET", "POST", "PUT","PATCH", "DELETE"], // Allowed Methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Allowed Headers
+    origin: "http://localhost:5173",
+    credentials: true,
+    methods: ["GET", "POST", "PUT","PATCH", "DELETE"], 
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
-
-
-
-
 connectDB();
-
-
 app.use("/api/courses", courseRoutes);
 app.use('/api/contact', contactRoutes);
 app.use("/api/gallery", galleryRoutes);
@@ -53,7 +43,6 @@ app.use("/api/study-materials", studyMaterialRoutes);
 app.use("/api/feedbacks", feedbackRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
-
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);

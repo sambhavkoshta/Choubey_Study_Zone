@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { BookOpen, IndianRupee } from 'lucide-react';
 import EnrollmentForm from './EnrollmentForm';
-
 const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -11,7 +10,6 @@ const Courses = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -26,7 +24,6 @@ const Courses = () => {
         setLoading(false);
       }
     };
-
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("userToken");
@@ -34,11 +31,9 @@ const Courses = () => {
           setIsLoggedIn(false);
           return;
         }
-
         const res = await axios.get('http://localhost:7000/api/student/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         setUser(res.data);
         setIsLoggedIn(true);
       } catch (error) {
@@ -47,16 +42,12 @@ const Courses = () => {
         localStorage.removeItem("userToken");
       }
     };
-
     fetchCourses();
     fetchUser();
   }, []);
-
   const handleEnrollClick = (course) => {
     setSelectedCourse(course);
   };
-
-  // Container variants for staggered animations
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -66,8 +57,6 @@ const Courses = () => {
       }
     }
   };
-
-  // Item variants for child animations
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -76,7 +65,6 @@ const Courses = () => {
       transition: { duration: 0.4 }
     }
   };
-
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -144,31 +132,26 @@ const Courses = () => {
                       Featured
                     </div>
                   )}
-                </div>
-                
+                </div>               
                 <div className="p-4 sm:p-5 md:p-6 flex flex-col flex-grow">
                   <h3 className="text-lg sm:text-xl font-semibold text-primary mb-2 flex items-center gap-2">
                     <BookOpen className="w-5 h-5 text-primary flex-shrink-0" /> 
                     <span className="line-clamp-1">{course.title}</span>
-                  </h3>
-                  
+                  </h3>                 
                   <p className="text-gray-700 mb-4 text-sm sm:text-base line-clamp-3 flex-grow">
                     {course.description}
-                  </p>
-                  
+                  </p>                  
                   <div className="mt-auto">
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-base sm:text-lg font-semibold text-[#FFC107] flex items-center gap-1">
                         <IndianRupee className="w-4 h-4" /> {course.price}
-                      </span>
-                      
+                      </span>                      
                       {course.duration && (
                         <span className="text-sm text-gray-600">
                           {course.duration}
                         </span>
                       )}
-                    </div>
-                    
+                    </div>                    
                     <motion.button
                       onClick={() => handleEnrollClick(course)}
                       className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark transition-colors duration-300 text-sm sm:text-base font-medium"
@@ -184,7 +167,6 @@ const Courses = () => {
           </motion.div>
         )}
       </div>
-
       {selectedCourse && (
         <EnrollmentForm 
           course={selectedCourse}  
@@ -197,11 +179,8 @@ const Courses = () => {
     </motion.div>
   );
 };
-
 const ScrollToTopButton = () => {
   const [isVisible, setIsVisible] = useState(false);
-  
-  // Show button when page is scrolled down
   useEffect(() => {
     const toggleVisibility = () => {
       if (window.pageYOffset > 300) {
@@ -209,20 +188,16 @@ const ScrollToTopButton = () => {
       } else {
         setIsVisible(false);
       }
-    };
-    
+    };   
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
-  
-  // Scroll to top function
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
-  };
-  
+  }; 
   return (
     <button
       onClick={scrollToTop}
@@ -234,6 +209,4 @@ const ScrollToTopButton = () => {
     </button>
   );
 };
-
-
 export default Courses;

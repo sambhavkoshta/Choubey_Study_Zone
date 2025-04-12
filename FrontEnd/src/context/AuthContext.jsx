@@ -2,19 +2,15 @@ import { createContext, useContext, useEffect, useState } from "react";
 import API from "../api";
 
 const AuthContext = createContext();
-
-
 const refreshAccessToken = async () => {
   try {
-    const { data } = await API.get("/admin/refresh-token"); // ✅ Call Backend API
+    const { data } = await API.get("/admin/refresh-token");
     localStorage.setItem("adminToken", data.accessToken);
     return data.accessToken;
   } catch (error) {
     logout();
   }
 };
-
-// ✅ API Call with Auto Refresh
 const apiWithAuth = async (url, method = "GET", body = null) => {
   let token = localStorage.getItem("adminToken");
   
@@ -26,8 +22,8 @@ const apiWithAuth = async (url, method = "GET", body = null) => {
   let response = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
 
   if (response.status === 401) {
-    token = await refreshAccessToken(); // 🔄 Try Refreshing Token
-    if (!token) return; // ❌ If Refresh Fails, Logout
+    token = await refreshAccessToken(); 
+    if (!token) return; 
     headers.Authorization = `Bearer ${token}`;
     response = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
   }
@@ -39,13 +35,11 @@ const apiWithAuth = async (url, method = "GET", body = null) => {
 export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // ✅ Logout Function (Session Expired Handle करने के लिए)
   const logout = () => {
     localStorage.removeItem("adminToken");
-    API.post("/admin/logout"); // ✅ Backend Logout API Call
+    API.post("/admin/logout"); 
     setAdmin(null);
-    window.location.href = "/admin/login"; // ✅ Redirect to Login Page
+    window.location.href = "/admin/login"; 
   };
 
   useEffect(() => {
@@ -64,7 +58,7 @@ export const AuthProvider = ({ children }) => {
         setAdmin(data);
       } catch (error) {
         if (error.response?.status === 401) {
-          alert("Session Expired! Please Login Again."); // ✅ Show Alert
+          alert("Session Expired! Please Login Again."); 
           logout();
         }
       } finally {
@@ -76,7 +70,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ admin, setAdmin, logout }}>
-      {!loading && children} {/* ✅ Prevent Infinite Loop */}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

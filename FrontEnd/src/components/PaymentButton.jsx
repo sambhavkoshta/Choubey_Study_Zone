@@ -1,5 +1,5 @@
 import React from "react";
-import API from "../api"; // Axios instance for API calls
+import API from "../api";
 
 const PaymentButton = ({ formData, course }) => {
   const handlePayment = async () => {
@@ -11,7 +11,6 @@ const PaymentButton = ({ formData, course }) => {
       });
 
       const options = {
-        // key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Razorpay Key
         key:"rzp_test_U2SI67Bs4otObo",
         amount: data.amount,
         currency: "INR",

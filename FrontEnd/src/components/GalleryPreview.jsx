@@ -3,20 +3,18 @@ import { useNavigate } from "react-router-dom";
 import API from "../api";
 import { motion } from "framer-motion";
 import { FaTimes, FaArrowLeft, FaArrowRight } from "react-icons/fa";
-
 const GalleryPreview = () => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
-
   useEffect(() => {
     const fetchImages = async () => {
       try {
         const response = await API.get("/gallery");
         if (response.data.images) {
-          setImages(response.data.images.slice(0, 3)); // केवल 3 इमेज दिखाओ
+          setImages(response.data.images.slice(0, 3)); 
         } else {
           throw new Error("Invalid response format");
         }
@@ -29,7 +27,6 @@ const GalleryPreview = () => {
     };
     fetchImages();
   }, []);
-
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
@@ -40,33 +37,25 @@ const GalleryPreview = () => {
         prevImage();
       }
     };
-    
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [selectedImage]);
-
   const openImage = (index) => {
     setSelectedImage(index);
-    // Prevent scrolling when modal is open
     document.body.style.overflow = "hidden";
   };
-
   const closeImage = () => {
     setSelectedImage(null);
-    // Re-enable scrolling when modal is closed
     document.body.style.overflow = "auto";
   };
-
   const nextImage = () => {
     setSelectedImage((prev) => (prev + 1) % images.length);
   };
-
   const prevImage = () => {
     setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
   };
-
   return (
     <section className="py-12 md:py-16 bg-gradient-to-r from-blue-700 via-purple-600 to-pink-500 text-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -81,7 +70,6 @@ const GalleryPreview = () => {
             A glimpse of our most memorable moments.
           </p>
         </motion.div>
-
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
@@ -122,8 +110,6 @@ const GalleryPreview = () => {
             ))}
           </motion.div>
         )}
-
-        {/* View More Button */}
         <div className="text-center mt-8 md:mt-10">
           <button
             onClick={() => navigate("/gallery")}
@@ -133,8 +119,6 @@ const GalleryPreview = () => {
           </button>
         </div>
       </div>
-
-      {/* Large Image Viewer Modal */}
       {selectedImage !== null && (
         <motion.div 
           className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
@@ -168,8 +152,7 @@ const GalleryPreview = () => {
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.3 }}
               key={selectedImage}
-            />
-            
+            />           
             <button 
               className="absolute right-2 md:right-5 text-white text-xl md:text-3xl bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70 focus:outline-none transition-all duration-300 z-10" 
               onClick={nextImage}
@@ -177,8 +160,6 @@ const GalleryPreview = () => {
             >
               <FaArrowRight />
             </button>
-            
-            {/* Image counter */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white bg-black bg-opacity-50 px-4 py-1 rounded-full text-sm">
               {selectedImage + 1} / {images.length}
             </div>
@@ -188,5 +169,4 @@ const GalleryPreview = () => {
     </section>
   );
 };
-
 export default GalleryPreview;

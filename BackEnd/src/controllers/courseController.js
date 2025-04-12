@@ -1,17 +1,15 @@
 import Course from "../models/course.model.js";
 import cloudinary from "../utils/cloudinary.js";
 
-// ✅ 1. Create a Course
 export const createCourse = async (req, res) => {
   try {
     const { title, description, price } = req.body;
-    const result = await cloudinary.uploader.upload(req.file.path); // Upload Image to Cloudinary
-
+    const result = await cloudinary.uploader.upload(req.file.path);
     const newCourse = new Course({
       title,
       description,
       price,
-      image: result.secure_url, // Save Cloudinary Image URL
+      image: result.secure_url,
     });
 
     await newCourse.save();
@@ -21,9 +19,6 @@ export const createCourse = async (req, res) => {
   }
 };
 
-
-
-// ✅ 2. Get All Courses
 export const getAllCourses = async (req, res) => {
   try {
     const courses = await Course.find();
@@ -33,15 +28,12 @@ export const getAllCourses = async (req, res) => {
   }
 };
 
-// ✅ 3. Update a Course
 export const updateCourse = async (req, res) => {
   try {
     const { title, description, price } = req.body;
     const { id } = req.params;
 
     let updatedCourse = { title, description, price };
-
-    // If image is uploaded, update it in Cloudinary
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       updatedCourse.image = result.secure_url;
@@ -54,39 +46,6 @@ export const updateCourse = async (req, res) => {
   }
 };
 
-// export const updateCourse = async (req, res) => {
-//   try {
-//     const { title, description, price, eligibility, examPattern, preparationTips } = req.body;
-//     const { id } = req.params;
-
-//     let updatedCourse = { title, description, price };
-
-//     // यदि नई eligibility, examPattern, preparationTips दी गई हैं, तो उन्हें अपडेट करें
-//     if (eligibility) updatedCourse.eligibility = JSON.parse(eligibility);
-//     if (examPattern) updatedCourse.examPattern = JSON.parse(examPattern);
-//     if (preparationTips) updatedCourse.preparationTips = JSON.parse(preparationTips);
-
-//     // यदि नई image अपलोड हुई है, तो उसे Cloudinary पर अपडेट करें
-//     if (req.file) {
-//       const result = await cloudinary.uploader.upload(req.file.path);
-//       updatedCourse.image = result.secure_url;
-//     }
-
-//     const course = await Course.findByIdAndUpdate(id, updatedCourse, { new: true });
-
-//     if (!course) {
-//       return res.status(404).json({ success: false, message: "Course not found" });
-//     }
-
-//     res.status(200).json({ success: true, message: "Course updated successfully", course });
-//   } catch (error) {
-//     console.error("❌ Error updating course:", error);
-//     res.status(500).json({ success: false, message: "Server Error", error });
-//   }
-// };
-
-
-// ✅ 4. Delete a Course
 export const deleteCourse = async (req, res) => {
   try {
     const { id } = req.params;
@@ -100,19 +59,13 @@ export const deleteCourse = async (req, res) => {
 export const getCourses = async (req, res) => {
   try {
     const { search, category } = req.query;
-
     let query = {};
-
-    // Search by title
     if (search) {
       query.title = { $regex: search, $options: "i" }; // Case-insensitive search
     }
-
-    // Filter by category
     if (category) {
       query.category = category;
     }
-
     const courses = await Course.find(query);
     res.status(200).json(courses);
   } catch (error) {

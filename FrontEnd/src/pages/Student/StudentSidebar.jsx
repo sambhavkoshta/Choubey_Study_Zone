@@ -2,14 +2,12 @@ import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Home, User, BookOpen, Bookmark, MessageSquare, LogOut, ChevronRight, Award, Settings, Loader } from "lucide-react";
 import API from "../../api";
-
 const StudentSidebar = ({ onItemClick }) => {
   const [expandedSections, setExpandedSections] = useState({});
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-
   const menuItems = [
     { 
       title: "Dashboard", 
@@ -45,34 +43,24 @@ const StudentSidebar = ({ onItemClick }) => {
       icon: <MessageSquare size={18} /> 
     }
   ];
-
-  // Fetch user data from backend
   useEffect(() => {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        // Get the authentication token from localStorage
         const token = localStorage.getItem('userToken');
-        
         if (!token) {
-          // If no token exists, redirect to login
           navigate('/login');
           return;
         }
-
         const response = await API.get('/student/profile', {
           headers: {
             Authorization: `Bearer ${token}`
           }
-        });
-        
+        });        
         setUserData(response.data);
       } catch (error) {
         console.error('Failed to fetch user data:', error);
-        
-        // Handle authentication errors
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          // Clear invalid token and redirect to login
           localStorage.removeItem('userToken');
           navigate('/login');
         }
@@ -80,27 +68,21 @@ const StudentSidebar = ({ onItemClick }) => {
         setLoading(false);
       }
     };
-
     fetchUserData();
   }, [navigate]);
-
-  // Auto-expand section based on current path
   useEffect(() => {
-    const newExpandedSections = { ...expandedSections };
-    
+    const newExpandedSections = { ...expandedSections };   
     menuItems.forEach(item => {
       if (item.isSection && item.items) {
         const shouldExpand = item.items.some(subItem => 
           location.pathname === subItem.path || 
           location.pathname.startsWith(subItem.path + '/')
-        );
-        
+        );       
         if (shouldExpand) {
           newExpandedSections[item.title] = true;
         }
       }
-    });
-    
+    });    
     setExpandedSections(newExpandedSections);
   }, [location.pathname]);
 
@@ -110,38 +92,26 @@ const StudentSidebar = ({ onItemClick }) => {
       [title]: !prev[title]
     }));
   };
-
   const handleLogout = async (e) => {
-    e.preventDefault();
-    
+    e.preventDefault();   
     try {
       const token = localStorage.getItem('userToken');
-      
-      // Call logout API endpoint
       await API.post('/student/logout', {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      
-      // Clean up local storage
       localStorage.removeItem('userToken');
-      
-      // Redirect to login page
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
-      
-      // Even if the API call fails, we should still clear local storage and redirect
       localStorage.removeItem('userToken');
       navigate('/login');
     }
   };
-
   const renderNavItem = (item) => {
     if (item.isSection) {
-      const isExpanded = expandedSections[item.title];
-      
+      const isExpanded = expandedSections[item.title];      
       return (
         <div key={item.title} className="mb-1">
           <button 
@@ -156,8 +126,7 @@ const StudentSidebar = ({ onItemClick }) => {
               size={16} 
               className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} 
             />
-          </button>
-          
+          </button>          
           {isExpanded && (
             <div className="ml-3 mt-1 space-y-1 border-l border-blue-700 pl-3">
               {item.items.map(subItem => (
@@ -182,7 +151,6 @@ const StudentSidebar = ({ onItemClick }) => {
         </div>
       );
     }
-    
     return (
       <NavLink
         key={item.path}
@@ -202,13 +170,10 @@ const StudentSidebar = ({ onItemClick }) => {
       </NavLink>
     );
   };
-
   const getInitials = (user) => {
     if (!user) return '';
-    
     const firstName = user.firstname || '';
     const lastName = user.lastname || '';
-    
     if (firstName && lastName) {
       return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
     } else if (firstName) {
@@ -220,13 +185,10 @@ const StudentSidebar = ({ onItemClick }) => {
       }
       return user.name.charAt(0).toUpperCase();
     }
-    
     return 'U';
   };
-
   return (
     <div className="flex h-full flex-col bg-gradient-to-b from-blue-900 to-blue-950">
-      {/* Logo & Header */}
       <div className="border-b border-blue-800 p-4">
         <div className="flex items-center justify-center space-x-2 py-2">
           <div className="rounded-full bg-white p-2">
@@ -235,13 +197,9 @@ const StudentSidebar = ({ onItemClick }) => {
           <h2 className="text-xl font-bold text-white">Student Portal</h2>
         </div>
       </div>
-      
-      {/* Navigation */}
       <nav className="flex-1 space-y-1 overflow-y-auto p-4">
         {menuItems.map(item => renderNavItem(item))}
       </nav>
-      
-      {/* User Profile & Logout */}
       <div className="border-t border-blue-800 p-4">
         <div className="mb-3 flex items-center space-x-3 rounded-md bg-blue-800 bg-opacity-30 p-2">
           {loading ? (
@@ -280,7 +238,6 @@ const StudentSidebar = ({ onItemClick }) => {
             </>
           )}
         </div>
-        
         <button
           onClick={handleLogout}
           className="flex w-full items-center rounded-md px-3 py-2 text-gray-300 hover:bg-blue-800 hover:text-white transition-colors"
@@ -292,5 +249,4 @@ const StudentSidebar = ({ onItemClick }) => {
     </div>
   );
 };
-
 export default StudentSidebar;

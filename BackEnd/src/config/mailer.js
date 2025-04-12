@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// 📌 Nodemailer Transporter Setup
 const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
@@ -12,7 +11,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 📌 Function to Send OTP Email
 export const sendOTP = async (email, otp) => {
   try {
     const mailOptions = {

@@ -4,7 +4,6 @@ import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaUser, FaPaperPlane } from "react
 import API from "../api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -12,13 +11,10 @@ const Contact = () => {
     phone: "",
     message: "",
   });
-
   const [emailError, setEmailError] = useState("");
   const [mapUrl, setMapUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Fetch Google Map URL from API
   useEffect(() => {
     setLoading(true);
     API.get("/contact/location")
@@ -26,7 +22,6 @@ const Contact = () => {
       .catch(() => toast.error("Failed to load map"))
       .finally(() => setLoading(false));
   }, []);
-
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -36,7 +31,6 @@ const Contact = () => {
     setEmailError("");
     return true;
   };
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -46,14 +40,12 @@ const Contact = () => {
       validateEmail(e.target.value);
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateEmail(formData.email)) {
       toast.error("Please enter a valid email");
       return;
     }
-
     setIsSubmitting(true);
     try {
       await API.post("/contact/submit", formData);
@@ -65,11 +57,9 @@ const Contact = () => {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="min-h-screen py-6 md:py-12 bg-[#F5F5F5] px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
-        {/* Header Section */}
         <motion.div
           className="text-center mb-8 md:mb-12"
           initial={{ opacity: 0, y: -20 }}
@@ -79,9 +69,7 @@ const Contact = () => {
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-primary mb-2 md:mb-4">Contact Us</h1>
           <p className="text-base md:text-lg text-gray-600">We're here to assist you. Reach out to us anytime!</p>
         </motion.div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-          {/* Contact Info Section */}
           <motion.div
             className="bg-white rounded-2xl shadow-xl p-6 md:p-8 flex flex-col space-y-4 md:space-y-6"
             initial={{ opacity: 0, x: -30 }}
@@ -103,8 +91,6 @@ const Contact = () => {
               <FaMapMarkerAlt className="text-primary text-xl md:text-2xl mr-3 md:mr-4 mt-1 flex-shrink-0" />
               <p className="text-base md:text-lg">Ahinsa Chowk, Vijay Nagar, Jabalpur</p>
             </div>
-
-            {/* Google Map Section */}
             <div className="mt-4 md:mt-8">
               {loading ? (
                 <div className="w-full h-48 md:h-64 bg-gray-200 animate-pulse rounded-lg"></div>
@@ -115,8 +101,6 @@ const Contact = () => {
               )}
             </div>
           </motion.div>
-
-          {/* Contact Form Section */}
           <motion.div
             className="bg-white rounded-2xl shadow-xl p-6 md:p-8"
             initial={{ opacity: 0, x: 30 }}
@@ -189,11 +173,8 @@ const Contact = () => {
     </div>
   );
 };
-
 const ScrollToTopButton = () => {
   const [isVisible, setIsVisible] = useState(false);
-  
-  // Show button when page is scrolled down
   useEffect(() => {
     const toggleVisibility = () => {
       if (window.pageYOffset > 300) {
@@ -201,20 +182,16 @@ const ScrollToTopButton = () => {
       } else {
         setIsVisible(false);
       }
-    };
-    
+    };   
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
-  
-  // Scroll to top function
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
-  };
-  
+  }; 
   return (
     <button
       onClick={scrollToTop}
@@ -226,6 +203,4 @@ const ScrollToTopButton = () => {
     </button>
   );
 };
-
-
 export default Contact;

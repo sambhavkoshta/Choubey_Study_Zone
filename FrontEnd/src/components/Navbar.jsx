@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { IoIosArrowDown } from "react-icons/io";
 import { FiMenu, FiX } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
-
 const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
@@ -16,8 +15,6 @@ const Navbar = () => {
   const location = useLocation();
   const dropdownRef = useRef(null);
   const menuRef = useRef(null);
-
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
@@ -26,15 +23,12 @@ const Navbar = () => {
         setScrolled(false);
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
   useEffect(() => {
     const userToken = localStorage.getItem("userToken");
     const adminToken = localStorage.getItem("adminToken");
-
     if (userToken) {
       setIsAuthenticated(true);
       setIsAdmin(false);
@@ -48,29 +42,24 @@ const Navbar = () => {
       setUser(null);
       setIsAdmin(false);
     }
-
     const handleOutsideClick = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
         setLoginDropdown(false);
       }
     };
-
     document.addEventListener("click", handleOutsideClick);
-    window.addEventListener("resize", handleResize);
-    
+    window.addEventListener("resize", handleResize);   
     return () => {
       document.removeEventListener("click", handleOutsideClick);
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
   const handleResize = () => {
     if (window.innerWidth >= 768) {
       setMenuOpen(false);
     }
   };
-
   const fetchUser = async (token, type) => {
     try {
       const res = await fetch(
@@ -85,7 +74,6 @@ const Navbar = () => {
           },
         }
       );
-
       const data = await res.json();
       if (res.ok) {
         setUser(data);
@@ -94,7 +82,6 @@ const Navbar = () => {
       console.error("Error fetching user data:", error);
     }
   };
-
   const handleLogout = () => {
     localStorage.removeItem(isAdmin ? "adminToken" : "userToken");
     setIsAuthenticated(false);
@@ -103,7 +90,6 @@ const Navbar = () => {
     setDropdownOpen(false);
     navigate(isAdmin ? "/admin/login" : "/login");
   };
-
   const navLinks = [
     { path: "/", name: "Home" },
     { path: "/about", name: "About" },
@@ -111,8 +97,6 @@ const Navbar = () => {
     { path: "/gallery", name: "Gallery" },
     { path: "/contact", name: "Contact" },
   ];
-
-  // Animation variants
   const dropdownVariants = {
     hidden: { opacity: 0, y: -5, scale: 0.95 },
     visible: { 
@@ -132,7 +116,6 @@ const Navbar = () => {
       transition: { duration: 0.2 }
     }
   };
-
   const mobileMenuVariants = {
     hidden: { opacity: 0, height: 0 },
     visible: { 
@@ -152,7 +135,6 @@ const Navbar = () => {
       }
     }
   };
-
   return (
     <nav 
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
@@ -163,7 +145,6 @@ const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
-          {/* Logo and Site Name */}
           <Link 
             to="/" 
             className="flex items-center space-x-2 md:space-x-3 flex-shrink-0 group"
@@ -179,8 +160,6 @@ const Navbar = () => {
               Choubey Study Zone
             </span>
           </Link>
-
-          {/* Mobile Menu Button */}
           <motion.button 
             whileTap={{ scale: 0.9 }}
             onClick={() => setMenuOpen(!menuOpen)} 
@@ -189,8 +168,6 @@ const Navbar = () => {
           >
             {menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </motion.button>
-
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1 lg:space-x-2">
             <div className="flex items-center space-x-1 lg:space-x-2">
               {navLinks.map((link) => (
@@ -214,8 +191,6 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
-
-            {/* Desktop Authentication Section */}
             {isAuthenticated ? (
               <div className="relative ml-4" ref={dropdownRef}>
                 <motion.button
@@ -231,8 +206,7 @@ const Navbar = () => {
                   >
                     <IoIosArrowDown />
                   </motion.div>
-                </motion.button>
-                
+                </motion.button>                
                 <AnimatePresence>
                   {dropdownOpen && (
                     <motion.div
@@ -256,8 +230,7 @@ const Navbar = () => {
                           <path fillRule="evenodd" d="M10 2a4 4 0 100 8 4 4 0 000-8zm-6 8.6a.5.5 0 00-.5.5V18a1 1 0 001 1h11a1 1 0 001-1v-6.9a.5.5 0 00-.5-.5H4z" clipRule="evenodd" />
                         </svg>
                         {isAdmin ? "Admin Panel" : "Dashboard"}
-                      </Link>
-                      
+                      </Link>                     
                       <button 
                         onClick={handleLogout} 
                         className="flex items-center w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition duration-300"
@@ -326,8 +299,6 @@ const Navbar = () => {
             )}
           </div>
         </div>
-
-        {/* Mobile Navigation Menu */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div 
@@ -371,8 +342,6 @@ const Navbar = () => {
                       </Link>
                     </motion.div>
                   ))}
-                  
-                  {/* Mobile Authentication Section */}
                   <div className="border-t border-indigo-400/30 mt-2 pt-2 pb-4 px-4">
                     {isAuthenticated ? (
                       <motion.div
@@ -436,5 +405,4 @@ const Navbar = () => {
     </nav>
   );
 };
-
 export default Navbar;

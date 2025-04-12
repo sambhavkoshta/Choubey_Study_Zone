@@ -1,12 +1,9 @@
 import Contact from "../models/Contact.js";
 import validator from "validator";
 
-// ✅ (1) Submit Contact Form
 export const submitContact = async (req, res) => {
   try {
     let { name, email, phone, message } = req.body;
-
-    // Trim input fields
     name = name.trim();
     email = email.trim();
     phone = phone.trim();
@@ -38,7 +35,6 @@ export const submitContact = async (req, res) => {
   }
 };
 
-// ✅ (2) Get All Contacts (Admin Only)
 export const getAllContacts = async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ createdAt: -1 });
@@ -49,7 +45,6 @@ export const getAllContacts = async (req, res) => {
   }
 };
 
-// ✅ (3) Get Single Contact by ID (Admin Only)
 export const getContactById = async (req, res) => {
   try {
     const contact = await Contact.findById(req.params.id);
@@ -63,7 +58,6 @@ export const getContactById = async (req, res) => {
   }
 };
 
-// ✅ (4) Delete Contact (Admin Only)
 export const deleteContact = async (req, res) => {
   try {
     const contact = await Contact.findByIdAndDelete(req.params.id);
@@ -77,22 +71,7 @@ export const deleteContact = async (req, res) => {
   }
 };
 
-// // 📌 Google Map URL Fetch API Handler
-// export const getLocation = async (req, res) => {
-//   try {
-//     const mapUrl = process.env.GOOGLE_MAP_URL || 
-//       "https://www.google.com/maps/embed?..."; // Fallback URL
 
-//     res.status(200).json({ mapUrl });
-//   } catch (error) {
-//     console.error("Get Location Error:", error);
-//     res.status(500).json({ error: "Failed to fetch location." });
-//   }
-// };
-
-
-
-// 📌 Google Map URL Fetch करने का API Handler
 export const getLocation = async (req, res) => {
   try {
     const mapUrl =

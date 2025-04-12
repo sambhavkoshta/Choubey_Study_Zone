@@ -4,9 +4,7 @@ import { FaEdit, FaTrash, FaPlus, FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 const itemsPerPage = 8;
-
 const ManageCourses = () => {
   const [courses, setCourses] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -24,11 +22,9 @@ const ManageCourses = () => {
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  
   useEffect(() => {
     fetchCourses();
   }, []);
-  
   const fetchCourses = async () => {
     try {
       setLoading(true);
@@ -40,8 +36,7 @@ const ManageCourses = () => {
     } finally {
       setLoading(false);
     }
-  };
-  
+  }; 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -49,8 +44,7 @@ const ManageCourses = () => {
     data.append("title", formData.title);
     data.append("description", formData.description);
     data.append("price", formData.price);
-    if (formData.image) data.append("image", formData.image);
-  
+    if (formData.image) data.append("image", formData.image);  
     try {
       if (editingCourse) {
         await API.put(`/courses/${editingCourse._id}`, data);
@@ -68,8 +62,7 @@ const ManageCourses = () => {
     } finally {
       setLoading(false);
     }
-  };
-  
+  }; 
   const handleEdit = (course) => {
     setEditingCourse(course);
     setShowForm(true);
@@ -80,19 +73,16 @@ const ManageCourses = () => {
       image: null,
       previewImage: course.image,
     });
-  };
-  
+  }; 
   const confirmDelete = (course) => {
     setSelectedCourse(course);
     setShowDeleteModal(true);
-  };
-  
+  };  
   const handleDelete = async () => {
     try {
       setLoading(true);
       await API.delete(`/courses/${selectedCourse._id}`);
       toast.success("Course deleted successfully!");
-
       const remainingCourses = courses.filter(c => c._id !== selectedCourse._id);
       setCourses(remainingCourses);
       if (remainingCourses.length % itemsPerPage === 0 && currentPage > 1) {
@@ -105,46 +95,35 @@ const ManageCourses = () => {
       setShowDeleteModal(false);
       setLoading(false);
     }
-  };
-  
+  }; 
   const resetForm = () => {
     setFormData({ title: "", description: "", price: "", image: null, previewImage: "" });
     setEditingCourse(null);
     setFileInputKey(Date.now());
-  };
-  
+  };  
   const filteredCourses = courses.filter(course => 
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
     course.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  
+  );  
   const totalPages = Math.ceil(filteredCourses.length / itemsPerPage);
-  const paginatedCourses = filteredCourses.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  
+  const paginatedCourses = filteredCourses.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage); 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
-  
+  }, [searchTerm]);  
   return (
     <div className="w-full">
-      {/* Toast Container - Make sure it's included for notifications to work */}
       <ToastContainer position="top-right" autoClose={3000} />
-      
-      {/* Page Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Manage Courses</h2>
         <p className="text-sm text-gray-600">Add, edit or remove course offerings</p>
       </div>
-
-      {/* Action Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
         <button
           onClick={() => setShowForm(true)}
           className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200 text-sm font-medium"
         >
           <FaPlus size={14} /> <span>Add New Course</span>
-        </button>
-        
+        </button>        
         <div className="relative w-full sm:w-auto">
           <input
             type="text"
@@ -158,22 +137,17 @@ const ManageCourses = () => {
           </div>
         </div>
       </div>
-
-      {/* Loading Indicator */}
       {loading && !showForm && !showDeleteModal && (
         <div className="w-full flex justify-center my-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       )}
-
-      {/* Course Grid */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-800">
             All Courses {filteredCourses.length > 0 && `(${filteredCourses.length})`}
           </h3>
-        </div>
-        
+        </div>        
         {paginatedCourses.length > 0 ? (
           <div className="p-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -218,8 +192,6 @@ const ManageCourses = () => {
             </p>
           </div>
         )}
-        
-        {/* Updated Pagination as per your design */}
         {filteredCourses.length > 0 && (
           <div className="p-4 border-t border-gray-200">
             <div className="flex justify-center items-center bg-white rounded-lg">
@@ -233,8 +205,7 @@ const ManageCourses = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                   Prev
-                </button>
-                
+                </button>                
                 <div className="flex">
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                     let pageToShow;
@@ -246,8 +217,7 @@ const ManageCourses = () => {
                       pageToShow = totalPages - 4 + i;
                     } else {
                       pageToShow = currentPage - 2 + i;
-                    }
-                    
+                    }                    
                     return (
                       <button
                         key={pageToShow}
@@ -270,8 +240,7 @@ const ManageCourses = () => {
                       </button>
                     );
                   })}
-                </div>
-                
+                </div>                
                 <button
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
                   disabled={currentPage === totalPages || totalPages === 0}
@@ -287,8 +256,6 @@ const ManageCourses = () => {
           </div>
         )}
       </div>
-
-      {/* Add/Edit Form Modal */}
       {showForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -309,8 +276,7 @@ const ManageCourses = () => {
                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
                     placeholder="Enter course title" 
                   />
-                </div>
-                
+                </div>                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
                   <textarea 
@@ -321,8 +287,7 @@ const ManageCourses = () => {
                     rows="3"
                     placeholder="Enter course description"
                   ></textarea>
-                </div>
-                
+                </div>                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Price (₹)</label>
                   <input 
@@ -333,8 +298,7 @@ const ManageCourses = () => {
                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
                     placeholder="Enter price in ₹" 
                   />
-                </div>
-                
+                </div>                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Course Image</label>
                   <input 
@@ -354,8 +318,7 @@ const ManageCourses = () => {
                     </div>
                   )}
                 </div>
-              </div>
-              
+              </div>             
               <div className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
                 <button 
                   type="button" 
@@ -383,8 +346,6 @@ const ManageCourses = () => {
           </div>
         </div>
       )}
-
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && selectedCourse && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
@@ -424,5 +385,4 @@ const ManageCourses = () => {
     </div>
   );
 };
-
 export default ManageCourses;

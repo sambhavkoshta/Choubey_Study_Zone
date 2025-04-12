@@ -6,7 +6,6 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 const ManageStudyMaterial = () => {
   const [materials, setMaterials] = useState([]);
   const [file, setFile] = useState(null);
@@ -15,15 +14,13 @@ const ManageStudyMaterial = () => {
   const [isUploadFormOpen, setIsUploadFormOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const adminToken = localStorage.getItem("adminToken");
-
   useEffect(() => {
     fetchMaterials();
   }, []);
-
   const fetchMaterials = async () => {
     try {
       const { data } = await axios.get("http://localhost:7000/api/study-materials");
-      setMaterials([...data.notes, ...data.videos, ...data.syllabus]);
+      setMaterials([...data.notes, ...data.syllabus]);
     } catch (error) {
       toast.error("Failed to fetch study materials", {
         position: "top-right",
@@ -35,8 +32,6 @@ const ManageStudyMaterial = () => {
       });
     }
   };
-
-
   const handleDelete = async (id) => {
     confirmAlert({
       title: 'Confirm Deletion',
@@ -77,16 +72,13 @@ const ManageStudyMaterial = () => {
       ]
     });
   };
-
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file) return;
-    
+    if (!file) return;    
     const formData = new FormData();
     formData.append("file", file);
     formData.append("title", title);
-    formData.append("category", category);
-    
+    formData.append("category", category);   
     try {
       setIsUploading(true);
       await axios.post("http://localhost:7000/api/study-materials", formData, {
@@ -121,43 +113,15 @@ const ManageStudyMaterial = () => {
       setIsUploading(false);
     }
   };
-  // const handleDownload = (fileUrl, title) => {
-  //   const link = document.createElement("a");
-  //   link.href = fileUrl;
-  //   link.download = title; // File name for download
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
-  // };
-  const handleDownload = async (fileUrl, title) => {
-  try {
-    const response = await axios.get(fileUrl, {
-      responseType: "blob", // Ensures binary file
-    });
-
-    const blob = new Blob([response.data], { type: "application/pdf" });
-    const url = window.URL.createObjectURL(blob);
-    
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", title); // File name
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("Download failed:", error);
-    toast.error("Failed to download file");
-  }
+const handleDownload = (fileUrl, title) => {
+   const finalUrl = `${fileUrl}?fl_attachment=${encodeURIComponent(title)}.pdf`;
+  window.open(finalUrl, "_blank");
 };
-
   const categoryIcons = {
     notes: <FaFile className="text-blue-500" />,
     videos: <FaVideo className="text-red-500" />,
     syllabus: <FaBookOpen className="text-green-500" />
   };
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex justify-between items-center mb-6">
@@ -171,8 +135,6 @@ const ManageStudyMaterial = () => {
           <FaPlus />
         </motion.button>
       </div>
-      
-      {/* Upload Form */}
       <AnimatePresence>
         {isUploadFormOpen && (
           <motion.div
@@ -196,7 +158,6 @@ const ManageStudyMaterial = () => {
                 className="w-full p-2 border rounded"
               >
                 <option value="notes">Notes</option>
-                <option value="videos">Videos</option>
                 <option value="syllabus">Syllabus</option>
               </select>
               <input 
@@ -227,8 +188,6 @@ const ManageStudyMaterial = () => {
           </motion.div>
         )}
       </AnimatePresence>
-      
-      {/* Study Material Table */}
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-100 border-b">
@@ -253,7 +212,6 @@ const ManageStudyMaterial = () => {
                   >
                     <FaDownload className="mr-2" /> Download
                   </button>
-
                   <button 
                     className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors flex items-center"
                     onClick={() => handleDelete(material._id)}
@@ -270,5 +228,4 @@ const ManageStudyMaterial = () => {
     </div>
   );
 };
-
 export default ManageStudyMaterial;

@@ -8,16 +8,12 @@ const EnrollmentForm = ({ course, user, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [animateExit, setAnimateExit] = useState(false);
-
-  // Handle close with animation
   const handleClose = () => {
     setAnimateExit(true);
     setTimeout(() => {
       onClose();
     }, 300);
   };
-
-  // Check Enrollment on Component Mount
   useEffect(() => {
     const checkEnrollment = async () => {
       if (!user) return;
@@ -54,10 +50,8 @@ const EnrollmentForm = ({ course, user, onClose }) => {
 
     checkEnrollment();
   }, [user, course, onClose]);
-
-  // Handle Payment (Only if not enrolled)
   const handlePayment = async () => {
-    if (isEnrolled) return; // Already enrolled, do nothing
+    if (isEnrolled) return;
 
     try {
       setLoading(true);
@@ -71,7 +65,6 @@ const EnrollmentForm = ({ course, user, onClose }) => {
 
       const { orderId, amount, currency } = response.data;
 
-      // Razorpay Payment Gateway Setup
       const options = {
         key: "rzp_test_U2SI67Bs4otObo",
         amount: amount,
@@ -121,8 +114,6 @@ const EnrollmentForm = ({ course, user, onClose }) => {
       setLoading(false);
     }
   };
-
-  // Format price with commas
   const formatPrice = (price) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
@@ -137,7 +128,6 @@ const EnrollmentForm = ({ course, user, onClose }) => {
         className={`bg-white dark:bg-gray-800 p-0 rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform transition-all duration-300 ${animateExit ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header with course image */}
         <div className="relative h-48 overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600">
           {course.imageUrl ? (
             <img 
@@ -150,8 +140,6 @@ const EnrollmentForm = ({ course, user, onClose }) => {
               <h3 className="text-3xl font-bold text-white">Chaubey Study Zone</h3>
             </div>
           )}
-          
-          {/* Close button */}
           <button 
             onClick={handleClose}
             className="absolute top-4 right-4 text-white bg-black bg-opacity-30 hover:bg-opacity-40 rounded-full p-2 transition-all duration-200 hover:rotate-90"
@@ -159,25 +147,16 @@ const EnrollmentForm = ({ course, user, onClose }) => {
           >
             <FaTimesCircle className="text-xl" />
           </button>
-          
-          {/* Course price tag */}
           <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-900 text-indigo-600 dark:text-indigo-400 font-bold py-2 px-4 rounded-full shadow-lg">
             ₹{formatPrice(course.price)}
           </div>
         </div>
-        
-        {/* Content */}
         <div className="px-6 py-6">
-          {/* Title and details */}
           <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white">{course.title}</h2>
-          
-          {/* Course details */}
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
             <p className="text-gray-600 dark:text-gray-300 text-sm">
               {course.description}
             </p>
-            
-            {/* Course highlights */}
             {course.highlights && (
               <div className="mt-3 space-y-1">
                 {course.highlights.map((highlight, index) => (
@@ -189,8 +168,6 @@ const EnrollmentForm = ({ course, user, onClose }) => {
               </div>
             )}
           </div>
-          
-          {/* Enrollment status or payment buttons */}
           {isEnrolled ? (
             <div className="bg-green-50 dark:bg-green-900 dark:bg-opacity-20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center">
               <FaRegCheckCircle className="text-3xl text-green-500 mx-auto mb-2" />
@@ -203,13 +180,10 @@ const EnrollmentForm = ({ course, user, onClose }) => {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Secure payment notice */}
               <div className="flex items-center justify-center mb-4 text-gray-500 dark:text-gray-400 text-sm">
                 <FaLock className="mr-2" />
                 <span>Secure Payment via Razorpay</span>
               </div>
-              
-              {/* Payment button */}
               <button
                 onClick={handlePayment}
                 className="w-full relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium shadow-lg hover:from-indigo-700 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
@@ -227,8 +201,6 @@ const EnrollmentForm = ({ course, user, onClose }) => {
                   </>
                 )}
               </button>
-              
-              {/* Cancel button */}
               <button
                 onClick={handleClose}
                 className="w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
@@ -238,8 +210,6 @@ const EnrollmentForm = ({ course, user, onClose }) => {
             </div>
           )}
         </div>
-        
-        {/* Footer */}
         <div className="border-t border-gray-200 dark:border-gray-700 px-6 py-3 bg-gray-50 dark:bg-gray-800 text-center text-xs text-gray-500 dark:text-gray-400">
           By enrolling, you agree to our Terms of Service and Privacy Policy
         </div>

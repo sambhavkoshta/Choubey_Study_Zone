@@ -3,58 +3,23 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const CourseDetails = () => {
-  const { courseId } = useParams(); // ✅ Get Course ID from URL
+  const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-//   useEffect(() => {
-//     const fetchCourseDetails = async () => {
-//       try {
-//         const token = localStorage.getItem("userToken");
-
-//         console.log("Fetching Course Details for ID:", courseId); // ✅ Debug Log
-
-//         const response = await axios.get(
-//           `http://localhost:7000/api/student/courses/${courseId}`,
-//           {
-//             headers: { Authorization: `Bearer ${token}` },
-//           }
-//         );
-
-//         console.log("✅ Course Details Data:", response.data); // ✅ Debug Log
-//         setCourse(response.data);
-//       } catch (err) {
-//         console.error("❌ Error fetching course details:", err);
-//         setError("Failed to load course details");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     if (courseId) {
-//       fetchCourseDetails();
-//     } else {
-//       setError("Invalid Course ID");
-//       setLoading(false);
-//     }
-    //   }, [courseId]);
-    
     useEffect(() => {
     const fetchCourseDetails = async () => {
         try {
             const token = localStorage.getItem("userToken");
-
-            console.log("Fetching Course ID from URL:", courseId); // ✅ Debug Log
+            console.log("Fetching Course ID from URL:", courseId); 
             console.log(`API URL: http://localhost:7000/api/courses/${courseId}`);
-
             const response = await axios.get(
                 `http://localhost:7000/api/courses/${courseId}`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
-
             console.log("✅ Course Details Data:", response.data);
             setCourse(response.data);
         } catch (err) {

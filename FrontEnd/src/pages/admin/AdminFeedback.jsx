@@ -3,7 +3,6 @@ import API from "../../api";
 import { toast } from "react-toastify";
 import { FaUserCircle, FaTrash, FaStar } from "react-icons/fa";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-
 const AdminFeedback = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,8 +10,6 @@ const AdminFeedback = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  // ✅ Fetch Feedbacks API
   const fetchFeedbacks = async () => {
     setLoading(true);
     try {
@@ -28,23 +25,17 @@ const AdminFeedback = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchFeedbacks();
   }, [currentPage]);
-
-  // ✅ Delete Confirmation Modal
   const confirmDelete = (id) => {
     setDeleteId(id);
     setIsModalOpen(true);
   };
-
   const closeModal = () => {
     setIsModalOpen(false);
     setDeleteId(null);
   };
-
-  // ✅ Delete Feedback API
   const deleteFeedback = async () => {
     try {
       await API.delete(`/feedbacks/${deleteId}`, {
@@ -58,10 +49,8 @@ const AdminFeedback = () => {
       closeModal();
     }
   };
-
   return (
     <div className="space-y-6">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
           Feedback Management
@@ -72,15 +61,12 @@ const AdminFeedback = () => {
           </span>
         </div>
       </div>
-
-      {/* Content Section */}
       {loading ? (
         <div className="flex justify-center items-center py-16">
           <AiOutlineLoading3Quarters className="animate-spin text-4xl text-blue-600" />
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
-          {/* ✅ Responsive Table */}
           <div className="overflow-x-auto">
             <table className="w-full min-w-full divide-y divide-gray-200">
               <thead>
@@ -149,8 +135,6 @@ const AdminFeedback = () => {
               </tbody>
             </table>
           </div>
-
-          {/* ✅ Pagination */}
           {totalPages > 1 && (
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex items-center justify-between">
               <button
@@ -186,8 +170,6 @@ const AdminFeedback = () => {
           )}
         </div>
       )}
-
-      {/* ✅ Delete Confirmation Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md transform transition-all animate-fade-in">
@@ -219,5 +201,4 @@ const AdminFeedback = () => {
     </div>
   );
 };
-
 export default AdminFeedback;

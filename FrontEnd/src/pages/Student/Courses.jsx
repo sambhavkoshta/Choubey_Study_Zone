@@ -9,12 +9,9 @@ const Courses = ({ user }) => {
     const fetchEnrolledCourses = async () => {
       if (!user) return;
       try {
-        console.log("Fetching courses for:", user._id); // Debugging Step ✅
-        
+        console.log("Fetching courses for:", user._id); 
         const response = await axios.get(`http://localhost:7000/api/student/my-courses/${user._id}`);
-        
-        console.log("API Response:", response.data); // ✅ Debugging Step
-        
+        console.log("API Response:", response.data);
         setCourses(response.data.enrolledCourses);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -22,8 +19,6 @@ const Courses = ({ user }) => {
         setLoading(false);
       }
     };
-
-
     fetchEnrolledCourses();
   }, [user]);
 

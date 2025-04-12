@@ -11,7 +11,6 @@ import StudyMaterials from "../pages/Student/StudyMaterials";
 const StudentRoutes = () => {
   return (
     <Routes>
-      {/* ✅ Protected Routes for Students */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard/*" element={<StudentLayout />}>
           <Route index element={<StudentDashboard />} />

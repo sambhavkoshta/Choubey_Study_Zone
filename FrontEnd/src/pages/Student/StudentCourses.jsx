@@ -1,19 +1,16 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Navigation Hook
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
 const StudentCourses = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate(); // ✅ React Router Navigation
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         const fetchEnrolledCourses = async () => {
             try {
                 const token = localStorage.getItem("userToken");
-
-                // ✅ Step 1: Fetch Profile API (User ID)
                 const profileResponse = await axios.get("http://localhost:7000/api/student/profile", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
@@ -22,8 +19,6 @@ const StudentCourses = () => {
                 if (!userId) {
                     throw new Error("User ID not found");
                 }
-
-                // ✅ Step 2: Fetch Enrolled Courses
                 const response = await axios.get(`http://localhost:7000/api/student/enrolled-courses/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
@@ -70,13 +65,6 @@ const StudentCourses = () => {
                                 <h3 className="text-xl font-semibold text-gray-800">{course.title}</h3>
                                 <p className="text-gray-600 mt-2">{course.description}</p>
                                 <p className="text-blue-700 font-bold text-lg mt-2">₹{course.price}</p>
-
-                                {/* <button
-                                    onClick={() => navigate(`/dashboard/courses/${course._id}`)} // ✅ Navigate to CourseDetails
-                                    className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
-                                >
-                                    View Course
-                                </button> */}
                             </div>
                         </div>
                     ))}

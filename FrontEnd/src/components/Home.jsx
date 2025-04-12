@@ -3,14 +3,10 @@ import About from './About';
 import CoursesPreview from './CoursesPreview';
 import GalleryPreview from './GalleryPreview';
 import Hero from './Hero';
-
 const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 via-white to-gray-100 ">
-      {/* Hero Section - Slider */}
       <Hero />
-
-      {/* Content Section */}
       <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-8 sm:py-10 md:py-12">
         <div className="flex flex-col gap-8 sm:gap-10 md:gap-12 lg:gap-16">
           <About />
@@ -25,5 +21,4 @@ const Home = () => {
     </div>
   );
 };
-
 export default Home;

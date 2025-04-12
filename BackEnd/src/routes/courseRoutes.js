@@ -1,7 +1,7 @@
 import express from "express";
 import { createCourse, getAllCourses, updateCourse, deleteCourse } from "../controllers/courseController.js";
 import { getCourses } from "../controllers/courseController.js";
-import upload from "../middlewares/upload.js"; // Multer Middleware for Image Upload
+import upload from "../middlewares/upload.js";
 import Course from "../models/course.model.js";
 
 const router = express.Router();

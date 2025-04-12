@@ -4,10 +4,8 @@ import API from "../../api";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Plus, Trash2, X, Image, Upload, RefreshCw } from "lucide-react";
-
 const MAX_IMAGES_PER_UPLOAD = 5;
 const ITEMS_PER_PAGE = 8;
-
 const ManageGallery = () => {
   const [gallery, setGallery] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,11 +16,9 @@ const ManageGallery = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedForDelete, setSelectedForDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-
   useEffect(() => {
     fetchGallery();
   }, []);
-
   const fetchGallery = async () => {
     setLoading(true);
     try {
@@ -35,7 +31,6 @@ const ManageGallery = () => {
       setLoading(false);
     }
   };
-
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles.length > MAX_IMAGES_PER_UPLOAD) {
       toast.error(`You can upload only up to ${MAX_IMAGES_PER_UPLOAD} images at a time.`);
@@ -46,7 +41,6 @@ const ManageGallery = () => {
     );
     setSelectedFiles(filesWithPreview);
   }, []);
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: true,
@@ -55,7 +49,6 @@ const ManageGallery = () => {
       'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp']
     }
   });
-
   const handleUpload = async () => {
     if (selectedFiles.length === 0) {
       toast.error("No files selected!");
@@ -79,41 +72,32 @@ const ManageGallery = () => {
       setIsUploading(false);
     }
   };
-
   const confirmDelete = (image) => {
     setSelectedForDelete(image);
     setShowDeleteModal(true);
   };
-
   const deleteImage = async (id) => {
     try {
       await API.delete(`/gallery/${id}`);
       toast.success("Image deleted successfully!");
-
       const updatedGallery = gallery.filter((img) => img._id !== id);
       setGallery(updatedGallery);
-
       if (currentImage && currentImage._id === id) {
         setCurrentImage(null);
       }
-
-      // If all images on current page are deleted, go to previous page
       const remainingImages = updatedGallery.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
       );
-
       if (remainingImages.length === 0 && currentPage > 1) {
         setCurrentPage(currentPage - 1);
       }
-
       setShowDeleteModal(false);
     } catch (error) {
       console.error("Error deleting image:", error);
       toast.error("Failed to delete image!");
     }
   };
-
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") {
@@ -125,16 +109,13 @@ const ManageGallery = () => {
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [showForm]);
-
   const totalPages = Math.ceil(gallery.length / ITEMS_PER_PAGE);
   const paginatedGallery = gallery.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
-
   return (
     <div className="w-full">
-      {/* Page header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-800">Manage Gallery</h1>
         <button
@@ -148,8 +129,6 @@ const ManageGallery = () => {
           <span>Add Images</span>
         </button>
       </div>
-
-      {/* Main content container */}
       <div className="rounded-lg bg-white p-6 shadow-sm">
         <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4">
           <h2 className="text-lg font-medium text-gray-700">Gallery Images</h2>
@@ -161,7 +140,6 @@ const ManageGallery = () => {
             <span>Refresh</span>
           </button>
         </div>
-
         {loading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {[...Array(6)].map((_, index) => (
@@ -215,8 +193,6 @@ const ManageGallery = () => {
             ))}
           </div>
         )}
-
-        {/* Pagination controls */}
         {gallery.length > ITEMS_PER_PAGE && (
           <div className="mt-6 flex justify-center">
             <div className="flex justify-center items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
@@ -244,7 +220,6 @@ const ManageGallery = () => {
                     } else {
                       pageToShow = currentPage - 2 + i;
                     }
-                    
                     return (
                       <button
                         key={pageToShow}
@@ -268,7 +243,6 @@ const ManageGallery = () => {
                     );
                   })}
                 </div>
-                
                 <button
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages || 1))}
                   disabled={currentPage === totalPages || totalPages === 0}
@@ -284,8 +258,6 @@ const ManageGallery = () => {
           </div>
         )}
       </div>
-
-      {/* Upload modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
           <div className="max-h-[90vh] w-full max-w-md overflow-auto rounded-lg bg-white p-6 shadow-xl">
@@ -301,11 +273,9 @@ const ManageGallery = () => {
                 <X size={20} />
               </button>
             </div>
-            
             <p className="mb-3 text-sm text-gray-600">
               Upload up to {MAX_IMAGES_PER_UPLOAD} images at once
             </p>
-            
             <div
               {...getRootProps()}
               className={`mb-4 cursor-pointer rounded-lg border-2 border-dashed border-gray-300 p-6 text-center transition-colors ${
@@ -325,7 +295,6 @@ const ManageGallery = () => {
                 Supported formats: JPG, PNG, GIF, WEBP
               </p>
             </div>
-            
             {selectedFiles.length > 0 && (
               <div className="mb-4">
                 <p className="mb-2 text-sm font-medium text-gray-700">
@@ -353,7 +322,6 @@ const ManageGallery = () => {
                 </div>
               </div>
             )}
-            
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => {
@@ -386,8 +354,6 @@ const ManageGallery = () => {
           </div>
         </div>
       )}
-
-      {/* Delete confirmation modal */}
       {showDeleteModal && selectedForDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
           <div className="w-full max-w-sm rounded-lg bg-white p-6 text-center shadow-xl">
@@ -413,8 +379,6 @@ const ManageGallery = () => {
           </div>
         </div>
       )}
-
-      {/* Image preview modal */}
       {currentImage && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4"
@@ -454,5 +418,4 @@ const ManageGallery = () => {
     </div>
   );
 };
-
 export default ManageGallery;

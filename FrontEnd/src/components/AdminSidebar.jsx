@@ -6,14 +6,12 @@ import {
   ChevronRight, Settings
 } from "lucide-react";
 import API from "../api";
-
 const AdminSidebar = ({ onItemClick }) => {
   const [expandedSections, setExpandedSections] = useState({});
   const [adminData, setAdminData] = useState(null);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
-
   const menuItems = [
     { 
       title: "Dashboard", 
@@ -73,34 +71,24 @@ const AdminSidebar = ({ onItemClick }) => {
       ]
     }
   ];
-
-  // Fetch admin data from backend
   useEffect(() => {
     const fetchAdminData = async () => {
       setLoading(true);
       try {
-        // Get the authentication token from localStorage
-        const token = localStorage.getItem('adminToken');
-        
+        const token = localStorage.getItem('adminToken');        
         if (!token) {
-          // If no token exists, redirect to login
           navigate('/admin/login');
           return;
         }
-
         const response = await API.get('/admin/profile', {
           headers: {
             Authorization: `Bearer ${token}`
           }
-        });
-        
+        });        
         setAdminData(response.data);
       } catch (error) {
         console.error('Failed to fetch admin data:', error);
-        
-        // Handle authentication errors
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          // Clear invalid token and redirect to login
           localStorage.removeItem('adminToken');
           navigate('/admin/login');
         }
@@ -108,68 +96,49 @@ const AdminSidebar = ({ onItemClick }) => {
         setLoading(false);
       }
     };
-
     fetchAdminData();
   }, [navigate]);
-
-  // Auto-expand section based on current path
   useEffect(() => {
-    const newExpandedSections = { ...expandedSections };
-    
+    const newExpandedSections = { ...expandedSections };    
     menuItems.forEach(item => {
       if (item.isSection && item.items) {
         const shouldExpand = item.items.some(subItem => 
           location.pathname === subItem.path || 
           location.pathname.startsWith(subItem.path + '/')
-        );
-        
+        );        
         if (shouldExpand) {
           newExpandedSections[item.title] = true;
         }
       }
-    });
-    
+    });    
     setExpandedSections(newExpandedSections);
   }, [location.pathname]);
-
   const toggleSection = (title) => {
     setExpandedSections(prev => ({
       ...prev,
       [title]: !prev[title]
     }));
   };
-
   const handleLogout = async (e) => {
-    e.preventDefault();
-    
+    e.preventDefault();    
     try {
       const token = localStorage.getItem('adminToken');
-      
-      // Call logout API endpoint
       await API.post('/admin/logout', {}, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      
-      // Clean up local storage
       localStorage.removeItem('adminToken');
-      
-      // Redirect to login page
       navigate('/admin/login');
     } catch (error) {
       console.error('Logout failed:', error);
-      
-      // Even if the API call fails, we should still clear local storage and redirect
       localStorage.removeItem('adminToken');
       navigate('/admin/login');
     }
   };
-
   const renderNavItem = (item) => {
     if (item.isSection) {
-      const isExpanded = expandedSections[item.title];
-      
+      const isExpanded = expandedSections[item.title];     
       return (
         <div key={item.title} className="mb-1">
           <button 
@@ -184,8 +153,7 @@ const AdminSidebar = ({ onItemClick }) => {
               size={16} 
               className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} 
             />
-          </button>
-          
+          </button>         
           {isExpanded && (
             <div className="ml-3 mt-1 space-y-1 border-l border-indigo-700 pl-3">
               {item.items.map(subItem => (
@@ -209,8 +177,7 @@ const AdminSidebar = ({ onItemClick }) => {
           )}
         </div>
       );
-    }
-    
+    }    
     return (
       <NavLink
         key={item.path}
@@ -230,13 +197,10 @@ const AdminSidebar = ({ onItemClick }) => {
       </NavLink>
     );
   };
-
   const getInitials = (admin) => {
-    if (!admin) return 'A';
-    
+    if (!admin) return 'A';   
     const firstName = admin.firstname || '';
-    const lastName = admin.lastname || '';
-    
+    const lastName = admin.lastname || '';   
     if (firstName && lastName) {
       return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
     } else if (firstName) {
@@ -247,14 +211,11 @@ const AdminSidebar = ({ onItemClick }) => {
         return `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase();
       }
       return admin.name.charAt(0).toUpperCase();
-    }
-    
+    }   
     return 'A';
   };
-
   return (
     <div className="flex h-full flex-col bg-gradient-to-b from-indigo-900 to-indigo-950">
-      {/* Logo & Header */}
       <div className="border-b border-indigo-800 p-4">
         <div className="flex items-center justify-center space-x-2 py-2">
           <div className="rounded-full bg-white p-2">
@@ -262,14 +223,10 @@ const AdminSidebar = ({ onItemClick }) => {
           </div>
           <h2 className="text-xl font-bold text-white">Admin Portal</h2>
         </div>
-      </div>
-      
-      {/* Navigation */}
+      </div>      
       <nav className="flex-1 space-y-1 overflow-y-auto p-4">
         {menuItems.map(item => renderNavItem(item))}
-      </nav>
-      
-      {/* User Profile & Logout */}
+      </nav>      
       <div className="border-t border-indigo-800 p-4">
         <div className="mb-3 flex items-center space-x-3 rounded-md bg-indigo-800 bg-opacity-30 p-2">
           {loading ? (
@@ -307,8 +264,7 @@ const AdminSidebar = ({ onItemClick }) => {
               </div>
             </>
           )}
-        </div>
-        
+        </div>        
         <button
           onClick={handleLogout}
           className="flex w-full items-center rounded-md px-3 py-2 text-gray-300 hover:bg-indigo-800 hover:text-white transition-colors"
@@ -320,5 +276,4 @@ const AdminSidebar = ({ onItemClick }) => {
     </div>
   );
 };
-
 export default AdminSidebar;

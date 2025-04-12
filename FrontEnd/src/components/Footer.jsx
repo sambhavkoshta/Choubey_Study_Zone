@@ -1,21 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaFacebookF, FaInstagram, FaYoutube, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaChevronRight } from "react-icons/fa";
-
 const Footer = () => {
   return (
     <footer className="bg-gradient-to-b from-[#1e293b] to-[#0f172a] text-white py-16 relative overflow-hidden">
-      {/* Background pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 left-0 w-full h-full" 
              style={{backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)", backgroundSize: "20px 20px"}}></div>
       </div>
-      
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        {/* Top section with logo and grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8 mb-12">
-          
-          {/* Logo & About */}
           <div className="transform transition duration-500 hover:translate-y-[-5px]">
             <h2 className="text-2xl font-bold mb-4 inline-block relative after:content-[''] after:absolute after:bottom-[-5px] after:left-0 after:w-12 after:h-1 after:bg-gradient-to-r after:from-blue-500 after:to-purple-600">
               Chaubey Study Zone
@@ -29,8 +23,6 @@ const Footer = () => {
               </p>
             </div>
           </div>
-
-          {/* Quick Links */}
           <div className="transform transition duration-500 hover:translate-y-[-5px]">
             <h3 className="text-lg font-semibold mb-6 inline-block relative after:content-[''] after:absolute after:bottom-[-5px] after:left-0 after:w-8 after:h-1 after:bg-gradient-to-r after:from-blue-500 after:to-purple-600">
               Quick Links
@@ -62,8 +54,6 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-
-          {/* Contact Details */}
           <div className="transform transition duration-500 hover:translate-y-[-5px]">
             <h3 className="text-lg font-semibold mb-6 inline-block relative after:content-[''] after:absolute after:bottom-[-5px] after:left-0 after:w-8 after:h-1 after:bg-gradient-to-r after:from-blue-500 after:to-purple-600">
               Contact Us
@@ -89,16 +79,12 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-
-          {/* Social Media */}
           <div className="transform transition duration-500 hover:translate-y-[-5px]">
             <h3 className="text-lg font-semibold mb-6 inline-block relative after:content-[''] after:absolute after:bottom-[-5px] after:left-0 after:w-8 after:h-1 after:bg-gradient-to-r after:from-blue-500 after:to-purple-600">
               Follow Us
-            </h3>
-            
+            </h3>           
             <div className="mt-4 flex flex-col gap-4">
-              <p className="text-gray-300 text-sm">Stay connected with us on social media for updates, resources, and success stories.</p>
-              
+              <p className="text-gray-300 text-sm">Stay connected with us on social media for updates, resources, and success stories.</p>             
               <div className="flex gap-3 mt-2">
                 <a 
                   href="https://www.youtube.com/@amitkumarchoubey3646?si=sj7EBWgMx2m1JNld" 
@@ -127,21 +113,15 @@ const Footer = () => {
                 >
                   <FaInstagram className="text-lg" />
                 </a>
-              </div>
-              
+              </div>         
             </div>
           </div>
         </div>
-        
-        {/* Divider with gradient */}
         <div className="h-px bg-gradient-to-r from-transparent via-gray-500 to-transparent my-8"></div>
-        
-        {/* Copyright */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-gray-400 text-sm">
             © {new Date().getFullYear()} <span className="text-white">Chaubey Study Zone</span>. All rights reserved.
-          </div>
-          
+          </div>          
           <div className="flex gap-6 text-gray-400 text-sm">
             <Link to="/privacy" className="hover:text-white transition-colors duration-300">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-white transition-colors duration-300">Terms of Service</Link>
@@ -152,5 +132,4 @@ const Footer = () => {
     </footer>
   );
 };
-
 export default Footer;

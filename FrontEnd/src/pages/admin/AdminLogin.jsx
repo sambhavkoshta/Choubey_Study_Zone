@@ -3,27 +3,22 @@ import { useAuth } from "../../context/AuthContext";
 import API from "../../api";
 import { useNavigate } from "react-router-dom";
 import { FaUser, FaLock, FaShieldAlt } from "react-icons/fa";
-
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { setAdmin } = useAuth();
   const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
     try {
       const { data } = await API.post("/admin/login", { email, password });
-
-      // ✅ Token Store & Context Update
       localStorage.setItem("adminToken", data.accessToken);
       setAdmin(data);
-      navigate("/admin/dashboard"); // ✅ Redirect to Dashboard
+      navigate("/admin/dashboard"); 
       setTimeout(() => {
-        window.location.reload(); // Refresh page to update Navbar
+        window.location.reload();
       }, 300);
     } catch (error) {
       alert(error.response?.data?.message || "Login Failed!");
@@ -31,7 +26,6 @@ const AdminLogin = () => {
       setLoading(false);
     }
   };
-
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center relative py-4 sm:py-6 md:py-8 px-4 sm:px-6 lg:px-8"
@@ -39,10 +33,7 @@ const AdminLogin = () => {
         backgroundImage: "url('/images/education-bg.jpg')",
       }}
     >
-      {/* Overlay for better readability */}
       <div className="absolute inset-0 bg-black bg-opacity-70"></div>
-
-      {/* Glassmorphism Effect Login Box */}
       <div className="relative bg-white bg-opacity-10 backdrop-blur-lg p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-md border border-gray-200 border-opacity-20 transition-all duration-300 hover:shadow-blue-900/20">
         <div className="flex flex-col items-center mb-4 sm:mb-6">
           <div className="bg-blue-600 text-white p-2 sm:p-3 rounded-full mb-3 sm:mb-4 shadow-lg">
@@ -50,8 +41,7 @@ const AdminLogin = () => {
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-white">Admin Portal</h2>
           <p className="text-xs sm:text-sm text-gray-200 mt-1">Login to access admin dashboard</p>
-        </div>
-        
+        </div>        
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 mt-4 sm:mt-6">
           <div className="relative">
             <FaUser className="absolute left-3 top-3 sm:top-3.5 text-gray-400 text-sm sm:text-lg" />
@@ -63,8 +53,7 @@ const AdminLogin = () => {
               required
               className="w-full p-2 sm:p-3 pl-9 sm:pl-10 border border-gray-300 border-opacity-50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800 bg-opacity-30 text-white placeholder-gray-400 transition-all duration-300 text-sm sm:text-base"
             />
-          </div>
-          
+          </div>         
           <div className="relative">
             <FaLock className="absolute left-3 top-3 sm:top-3.5 text-gray-400 text-sm sm:text-lg" />
             <input
@@ -76,34 +65,6 @@ const AdminLogin = () => {
               className="w-full p-2 sm:p-3 pl-9 sm:pl-10 border border-gray-300 border-opacity-50 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-800 bg-opacity-30 text-white placeholder-gray-400 transition-all duration-300 text-sm sm:text-base"
             />
           </div>
-
-          {/* Remember Me & Forgot Password - Commented out */}
-          {/* <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
-                Remember me
-              </label>
-            </div>
-            
-            <div className="text-sm">
-              <button 
-                type="button"
-                onClick={() => navigate("/forgot-password")} 
-                className="text-blue-400 hover:text-blue-300 font-medium transition-colors duration-300"
-              >
-                Forgot password?
-              </button>
-            </div>
-          </div> */}
-
           <button
             type="submit"
             className={`w-full p-2 sm:p-3 font-semibold rounded-lg transition-all duration-300 flex items-center justify-center text-sm sm:text-base ${
@@ -124,7 +85,6 @@ const AdminLogin = () => {
             )}
           </button>
         </form>
-
         <div className="mt-4 sm:mt-6 text-center text-gray-300 text-xs sm:text-sm">
           <p>Secure Admin Access Only</p>
         </div>
@@ -132,5 +92,4 @@ const AdminLogin = () => {
     </div>
   );
 };
-
 export default AdminLogin;

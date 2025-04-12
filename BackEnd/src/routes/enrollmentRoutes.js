@@ -4,7 +4,6 @@ import { protectAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// GET: Fetch all enrollments
 router.get("/", protectAdmin, getAllEnrollments);
 
 export default router;

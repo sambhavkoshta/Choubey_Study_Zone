@@ -4,7 +4,7 @@ const feedbackSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // यह User Model से जुड़ेगा
+      ref: "User",
       required: true,
     },
     message: {
@@ -19,7 +19,7 @@ const feedbackSchema = new mongoose.Schema(
       max: 5,
     },
   },
-  { timestamps: true } // CreatedAt & UpdatedAt अपने आप add होंगे
+  { timestamps: true }
 );
 
 export default mongoose.model("Feedback", feedbackSchema);

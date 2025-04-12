@@ -1,8 +1,6 @@
 // src/pages/admin/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
 import API from "../../api";
-
-
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
     totalStudents: 0,
@@ -13,24 +11,18 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const adminToken = localStorage.getItem("adminToken");
-
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        // Get total students
         const studentsRes = await API.get("/admin/students", {
         headers: { Authorization: `Bearer ${adminToken}` },
       });
-        // Get total courses
         const coursesRes = await API.get("/courses");
-        // Get enrollments (you'll need to implement this endpoint)
         const enrollmentsRes = await API.get("/enrollments", {
         headers: { Authorization: `Bearer ${adminToken}` },
       });
-        // Get payments (you'll need to implement this endpoint)
         const paymentsRes = await API.get("/payments");
-
         setStats({
           totalStudents: studentsRes.data.length || 0,
           totalCourses: coursesRes.data.length || 0,
@@ -51,20 +43,15 @@ const AdminDashboard = () => {
         setLoading(false);
       }
     };
-
     fetchDashboardData();
   }, []);
-
-
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
-
       {loading ? (
         <div className="text-center py-10">Loading...</div>
       ) : (
         <>
-          {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
               <p className="text-gray-500">Total Students</p>
@@ -83,9 +70,6 @@ const AdminDashboard = () => {
               <p className="text-2xl font-bold">₹{stats.totalRevenue.toLocaleString()}</p>
             </div>
           </div>
-
-
-          {/* Recent Enrollments */}
           <div className="bg-white rounded-lg shadow p-4">
             <h2 className="text-lg font-semibold mb-4">Recent Enrollments</h2>
             <div className="overflow-x-auto">
@@ -140,5 +124,4 @@ const AdminDashboard = () => {
     </div>
   );
 };
-
 export default AdminDashboard;

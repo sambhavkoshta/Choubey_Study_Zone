@@ -7,7 +7,6 @@ const StudentLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // Handle scroll effect for header
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -26,15 +25,12 @@ const StudentLayout = () => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      {/* Mobile overlay backdrop */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 z-20 bg-black bg-opacity-50 md:hidden"
           onClick={toggleSidebar}
         ></div>
       )}
-
-      {/* Sidebar */}
       <div 
         className={`fixed inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -42,10 +38,7 @@ const StudentLayout = () => {
       >
         <StudentSidebar onItemClick={() => setSidebarOpen(false)} />
       </div>
-
-      {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Header */}
         <header className={`bg-white px-4 py-3 shadow-sm transition-shadow duration-200 ${
           scrolled ? "shadow-md" : ""
         }`}>
@@ -66,8 +59,6 @@ const StudentLayout = () => {
             </div>
           </div>
         </header>
-
-        {/* Main Content Container */}
         <main className="flex-1 overflow-auto p-4 md:p-6">
           <div className="mx-auto max-w-7xl">
             <Outlet />

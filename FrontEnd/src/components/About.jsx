@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 const AboutUs = () => {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState({
@@ -13,8 +12,6 @@ const AboutUs = () => {
     testimonial: false,
     cta: false
   });
-  
-  // Refs for scroll animations
   const sectionRefs = {
     mission: useRef(null),
     specializations: useRef(null),
@@ -25,15 +22,12 @@ const AboutUs = () => {
     testimonial: useRef(null),
     cta: useRef(null)
   };
-
-  // Intersection Observer setup for scroll animations
   useEffect(() => {
     const observerOptions = {
       root: null,
       rootMargin: '0px',
       threshold: 0.1
     };
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const sectionId = entry.target.getAttribute('data-section');
@@ -42,45 +36,33 @@ const AboutUs = () => {
         }
       });
     }, observerOptions);
-
-    // Register all section refs with the observer
     Object.entries(sectionRefs).forEach(([key, ref]) => {
       if (ref.current) {
         ref.current.setAttribute('data-section', key);
         observer.observe(ref.current);
       }
     });
-
-    // Initial animation for above-the-fold content
     setIsVisible(prev => ({ ...prev, mission: true }));
     setTimeout(() => setIsVisible(prev => ({ ...prev, specializations: true })), 300);
     setTimeout(() => setIsVisible(prev => ({ ...prev, approach: true })), 600);
-
     return () => observer.disconnect();
   }, []);
-
-  // Animation class helper
   const getAnimationClass = (section) => {
     return isVisible[section] 
       ? "opacity-100 translate-y-0 transition-all duration-700" 
       : "opacity-0 translate-y-10 transition-all duration-700";
   };
-
   const handleRegister = () => {
     navigate('/register');
   };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      {/* Animated Header with background gradient */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-16 sm:py-20 px-4 sm:px-6 lg:px-8 text-white relative overflow-hidden">
-        {/* Background animated elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
           <div className="absolute top-20 left-10 w-20 h-20 bg-white opacity-10 rounded-full animate-pulse"></div>
           <div className="absolute bottom-10 right-10 w-32 h-32 bg-indigo-300 opacity-10 rounded-full animate-ping"></div>
           <div className="absolute top-40 right-20 w-16 h-16 bg-blue-300 opacity-10 rounded-full animate-bounce"></div>
-        </div>
-        
+        </div>    
         <div className="max-w-6xl mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight animate-fadeIn">
             About Choubey Study Zone
@@ -90,15 +72,12 @@ const AboutUs = () => {
           </p>
         </div>
       </div>
-      
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
-        {/* Main Content - Card Layout */}
         <div 
           ref={sectionRefs.mission}
           className={`bg-white rounded-xl shadow-xl p-6 md:p-10 mb-12 ${getAnimationClass('mission')}`}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-            {/* Left Column - Our info with gradient accent */}
             <div className="space-y-6">
               <div className="relative transition-all duration-500 hover:scale-102 hover:-rotate-1">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg transform -rotate-1"></div>
@@ -111,8 +90,7 @@ const AboutUs = () => {
                     At Choubey Study Zone, we are committed to providing exceptional coaching for Banking, SSC, and Railway examinations. Our mission is to empower students with knowledge, skills, and confidence to excel in competitive exams and secure their dream government jobs.
                   </p>
                 </div>
-              </div>
-              
+              </div>  
               <div 
                 ref={sectionRefs.approach}
                 className={`relative transition-all duration-500 hover:scale-102 hover:rotate-1 ${getAnimationClass('approach')}`}
@@ -129,8 +107,6 @@ const AboutUs = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Right Column - Specializations */}
             <div 
               ref={sectionRefs.specializations}
               className={`${getAnimationClass('specializations')}`}
@@ -157,8 +133,6 @@ const AboutUs = () => {
             </div>
           </div>
         </div>
-        
-        {/* Location and Working Hours */}
         <div 
           ref={sectionRefs.location}
           className={`grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 ${getAnimationClass('location')}`}
@@ -182,7 +156,6 @@ const AboutUs = () => {
               </p>
             </div>
           </div>
-          
           <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-indigo-100 transform transition-all duration-500 hover:rotate-1 hover:shadow-xl">
             <div className="bg-gradient-to-r from-indigo-600 to-purple-700 py-3 sm:py-4 px-4 sm:px-6 text-white">
               <h2 className="text-lg sm:text-xl font-semibold">Working Hours</h2>
@@ -203,8 +176,6 @@ const AboutUs = () => {
             </div>
           </div>
         </div>
-        
-        {/* Our Journey Section */}
         <div 
           ref={sectionRefs.journey}
           className={`mb-12 ${getAnimationClass('journey')}`}
@@ -222,8 +193,6 @@ const AboutUs = () => {
             </div>
           </div>
         </div>
-        
-        {/* Services Offered */}
         <div 
           ref={sectionRefs.services}
           className={`mb-12 ${getAnimationClass('services')}`}
@@ -265,14 +234,11 @@ const AboutUs = () => {
             ))}
           </div>
         </div>
-        
-        {/* Testimonials */}
         <div 
           ref={sectionRefs.testimonial}
           className={`mb-12 ${getAnimationClass('testimonial')}`}
         >
           <div className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-xl p-6 sm:p-8 text-white text-center transition-all duration-500 hover:shadow-2xl transform hover:scale-102 relative overflow-hidden">
-            {/* Animated quote marks */}
             <div className="absolute top-2 left-6 text-5xl opacity-20 animate-pulse">❝</div>
             <div className="absolute bottom-2 right-6 text-5xl opacity-20 animate-pulse">❞</div>
             
@@ -283,8 +249,6 @@ const AboutUs = () => {
             <p className="font-medium">- Recent Student Success</p>
           </div>
         </div>
-        
-        {/* Contact CTA */}
         <div 
           ref={sectionRefs.cta}
           className={`mb-12 ${getAnimationClass('cta')}`}
@@ -308,18 +272,12 @@ const AboutUs = () => {
           </div>
         </div>
       </div>
-      
-      {/* Floating scroll-to-top button that appears when scrolling down */}
       <ScrollToTopButton />
     </div>
   );
 };
-
-// Additional component for scroll to top functionality
 const ScrollToTopButton = () => {
   const [isVisible, setIsVisible] = useState(false);
-  
-  // Show button when page is scrolled down
   useEffect(() => {
     const toggleVisibility = () => {
       if (window.pageYOffset > 300) {
@@ -328,19 +286,15 @@ const ScrollToTopButton = () => {
         setIsVisible(false);
       }
     };
-    
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
-  
-  // Scroll to top function
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
   };
-  
   return (
     <button
       onClick={scrollToTop}
@@ -352,59 +306,44 @@ const ScrollToTopButton = () => {
     </button>
   );
 };
-
-// Add global animations to your CSS or style tag
 const globalStyles = `
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-
 @keyframes slideUp {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
-
 .animate-fadeIn {
   animation: fadeIn 1s ease-out;
 }
-
 .animate-slideUp {
   animation: slideUp 0.8s ease-out 0.2s both;
 }
-
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
-
 @keyframes pulse {
   0%, 100% { opacity: 0.7; }
   50% { opacity: 0.4; }
 }
-
 .animate-ping {
   animation: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
-
 @keyframes ping {
   75%, 100% { transform: scale(1.5); opacity: 0; }
 }
-
 .animate-bounce {
   animation: bounce 2s infinite;
 }
-
 @keyframes bounce {
   0%, 100% { transform: translateY(-10%); }
   50% { transform: translateY(0); }
 }
-
-/* Utility for small scale hover */
 .hover\\:scale-102:hover {
   transform: scale(1.02);
 }
-
-/* Extra small screens */
 @media (min-width: 475px) {
   .xs\\:flex-row {
     flex-direction: row;
@@ -417,5 +356,4 @@ const globalStyles = `
   }
 }
 `;
-
 export default AboutUs;

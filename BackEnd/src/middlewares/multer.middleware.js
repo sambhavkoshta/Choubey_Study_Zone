@@ -5,7 +5,6 @@ import mime from "mime-types"; // ✅ MIME type handling
 
 const FILE_CONFIG = {
   notes: { formats: ["pdf"], maxSize: 10 * 1024 * 1024 }, // 10MB
-  videos: { formats: ["mp4"], maxSize: 100 * 1024 * 1024 }, // 100MB
   syllabus: { formats: ["pdf"], maxSize: 10 * 1024 * 1024 }, // 10MB
   images: { formats: ["jpg", "jpeg", "png"], maxSize: 10 * 1024 * 1024 }, // 10MB
 };
@@ -22,7 +21,7 @@ const storage = new CloudinaryStorage({
 
     if (!FILE_CONFIG[category]) {
       console.error("❌ Invalid category:", category);
-      throw new Error("Invalid category! Choose from notes, videos, syllabus, images.");
+      throw new Error("Invalid category! Choose from notes,syllabus, images.");
     }
 
     if (!FILE_CONFIG[category].formats.includes(fileExtension)) {

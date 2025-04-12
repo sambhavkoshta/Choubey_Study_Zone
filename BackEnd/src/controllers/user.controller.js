@@ -3,7 +3,6 @@ import Course from "../models/course.model.js";
 import StudyMaterial from "../models/StudyMaterial.js";
 import bcrypt from "bcryptjs";
 
-// Get Student Profile
 export const getStudentProfile = async (req, res) => {
     try {
         const student = await User.findById(req.user._id).select("-password");
@@ -13,7 +12,6 @@ export const getStudentProfile = async (req, res) => {
     }
 };
 
-// Get Enrolled Courses
 export const getEnrolledCourses = async (req, res) => {
     try {
         const courses = await Course.find({ enrolledStudents: req.user._id });
@@ -23,7 +21,6 @@ export const getEnrolledCourses = async (req, res) => {
     }
 };
 
-// Get Study Materials
 export const getStudyMaterials = async (req, res) => {
     try {
         const materials = await StudyMaterial.find({ enrolledStudents: req.user._id });
@@ -33,7 +30,6 @@ export const getStudyMaterials = async (req, res) => {
     }
 };
 
-// Update Student Profile
 export const updateStudentProfile = async (req, res) => {
     try {
         const student = await User.findById(req.user._id);
@@ -54,14 +50,6 @@ export const updateStudentProfile = async (req, res) => {
     }
 };
 
-
-
-
-
-//10-02-2025
-
-
-// Generate JWT Token
 const generateToken = (res, user) => {
   const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
     expiresIn: "1h",
@@ -71,25 +59,20 @@ const generateToken = (res, user) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 60 * 60 * 1000, // 1 hour
+    maxAge: 60 * 60 * 1000,
   });
 };
 
-// Register User
 const registerUser = async (req, res) => {
   const { firstname, lastname, email, phone, password } = req.body;
 
   try {
-    // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: "Email already in use" });
 
     const phoneExists = await User.findOne({ phone });
     if (phoneExists) return res.status(400).json({ message: "Phone number already registered" });
-
-    // Create new user
     const user = await User.create({ firstname, lastname, email, phone, password });
-    
     if (user) {
       generateToken(res, user);
       res.status(201).json({
@@ -104,14 +87,11 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Login User
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
-
-    // **Check password**
     console.log("Entered Password:", password);
     console.log("Stored Hashed Password:", user.password);
 
@@ -130,8 +110,6 @@ const loginUser = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-// Logout User
 const logoutUser = (req, res) => {
   res.cookie("token", "", { maxAge: 0 });
   res.json({ message: "Logged out successfully" });

@@ -3,22 +3,19 @@ import API from "../api";
 import { Link, useNavigate } from "react-router-dom";
 import { FaBook, FaSpinner } from "react-icons/fa";
 import { motion } from "framer-motion";
-
 const CoursePreview = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
   useEffect(() => {
     fetchCourses();
   }, []);
-
   const fetchCourses = async () => {
     try {
       setLoading(true);
       const res = await API.get("/courses");
-      setCourses(res.data.slice(0, 3)); // केवल 3 Courses दिखाओ
+      setCourses(res.data.slice(0, 3));
       setError(null);
     } catch (error) {
       console.error("Error fetching courses:", error);
@@ -27,11 +24,9 @@ const CoursePreview = () => {
       setLoading(false);
     }
   };
-
   const handleCardClick = () => {
     navigate('/courses');
   };
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -41,7 +36,6 @@ const CoursePreview = () => {
       }
     }
   };
-
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
@@ -54,14 +48,11 @@ const CoursePreview = () => {
       }
     }
   };
-
   return (
     <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-800 text-white relative overflow-hidden">
-      {/* Background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-full h-full bg-grid-white"></div>
-      </div>
-      
+      </div>  
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div 
           initial={{ y: -20, opacity: 0 }}
@@ -74,7 +65,6 @@ const CoursePreview = () => {
             Popular Courses
           </h2>
         </motion.div>
-
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <FaSpinner className="animate-spin text-4xl text-yellow-300" />
@@ -146,7 +136,6 @@ const CoursePreview = () => {
                 </motion.p>
               )}
             </motion.div>
-
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -166,5 +155,4 @@ const CoursePreview = () => {
     </section>
   );
 };
-
 export default CoursePreview;

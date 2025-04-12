@@ -1,4 +1,3 @@
-// src/pages/Student/StudentDashboard.jsx
 const StudentDashboard = () => {
   return (
     <div>

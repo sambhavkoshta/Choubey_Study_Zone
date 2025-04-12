@@ -28,10 +28,7 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-cover bg-center relative py-8 px-4 sm:px-6 lg:px-8" 
          style={{ backgroundImage: "url('/images/password-reset-bg.jpg')" }}>
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black bg-opacity-70"></div>
-
-      {/* Forgot Password Box */}
       <div className="relative bg-white bg-opacity-10 backdrop-blur-lg p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm md:max-w-md border border-gray-200 border-opacity-20 transition-all duration-300 hover:shadow-blue-900/20">
         <div className="flex flex-col items-center mb-4 sm:mb-6">
           <div className="bg-blue-600 text-white p-2 sm:p-3 rounded-full mb-3 sm:mb-4 shadow-lg">

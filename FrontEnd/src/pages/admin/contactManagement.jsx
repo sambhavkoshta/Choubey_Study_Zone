@@ -6,7 +6,6 @@ import { HiX } from "react-icons/hi";
 import { format } from "date-fns";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import "react-toastify/dist/ReactToastify.css";
-
 const ContactManagement = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,11 +16,9 @@ const ContactManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const contactsPerPage = 5;
   const adminToken = localStorage.getItem("adminToken");
-
   useEffect(() => {
     fetchContacts();
   }, []);
-
   const fetchContacts = async () => {
     setLoading(true);
     try {
@@ -34,7 +31,6 @@ const ContactManagement = () => {
     }
     setLoading(false);
   };
-
   const handleDelete = async () => {
     if (deleteId) {
       try {
@@ -50,16 +46,13 @@ const ContactManagement = () => {
       setDeleteId(null);
     }
   };
-
   const totalPages = Math.ceil(contacts.length / contactsPerPage);
   const paginatedContacts = contacts.slice(
     (currentPage - 1) * contactsPerPage,
     currentPage * contactsPerPage
   );
-
   return (
     <div className="space-y-6">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
           Contact Management
@@ -68,9 +61,6 @@ const ContactManagement = () => {
           Managing user inquiries and messages
         </div>
       </div>
-
-
-      {/* Contact List */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
         {loading ? (
           <div className="flex justify-center items-center py-16">
@@ -154,8 +144,6 @@ const ContactManagement = () => {
           </div>
         )}
       </div>
-
-            {/* Pagination Controls */}
       <div className="flex justify-center items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100">
         <div className="flex items-center">
           <button
@@ -218,8 +206,6 @@ const ContactManagement = () => {
           </button>
         </div>
       </div>
-
-      {/* View Contact Modal */}
       {showViewModal && selectedContact && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md transform transition-all animate-fade-in">
@@ -281,8 +267,6 @@ const ContactManagement = () => {
           </div>
         </div>
       )}
-
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md transform transition-all animate-fade-in">
@@ -318,5 +302,4 @@ const ContactManagement = () => {
     </div>
   );
 };
-
 export default ContactManagement;

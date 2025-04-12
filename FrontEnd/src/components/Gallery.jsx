@@ -2,14 +2,12 @@ import React, { useEffect, useState } from "react";
 import API from "../api";
 import { motion } from "framer-motion";
 import { FaArrowLeft, FaArrowRight, FaTimes } from "react-icons/fa";
-
 const Gallery = () => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [fullscreenImage, setFullscreenImage] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-
   useEffect(() => {
     const fetchImages = async () => {
       try {
@@ -28,34 +26,28 @@ const Gallery = () => {
     };
     fetchImages();
   }, []);
-
   const handleImageClick = (src, index) => {
     setFullscreenImage(src);
     setCurrentIndex(index);
   };
-
   const handleCloseFullscreen = () => {
     setFullscreenImage(null);
   };
-
   const showNextImage = (e) => {
     e.stopPropagation();
     const nextIndex = (currentIndex + 1) % images.length;
     setFullscreenImage(images[nextIndex].url);
     setCurrentIndex(nextIndex);
   };
-
   const showPrevImage = (e) => {
     e.stopPropagation();
     const prevIndex = (currentIndex - 1 + images.length) % images.length;
     setFullscreenImage(images[prevIndex].url);
     setCurrentIndex(prevIndex);
   };
-
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (!fullscreenImage) return;
-      
       if (event.key === "Escape") {
         handleCloseFullscreen();
       } else if (event.key === "ArrowRight") {
@@ -69,8 +61,6 @@ const Gallery = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [currentIndex, images, fullscreenImage]);
-
-  // Prevent body scroll when fullscreen image is open
   useEffect(() => {
     if (fullscreenImage) {
       document.body.style.overflow = 'hidden';
@@ -81,7 +71,6 @@ const Gallery = () => {
       document.body.style.overflow = 'auto';
     };
   }, [fullscreenImage]);
-
   return (
     <div className="min-h-screen py-8 sm:py-10 md:py-12 bg-[#F5F5F5] px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -150,7 +139,6 @@ const Gallery = () => {
             ))}
           </motion.div>
         )}
-
         {fullscreenImage && (
           <motion.div 
             className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 backdrop-blur-sm p-4"
@@ -178,7 +166,6 @@ const Gallery = () => {
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
-
             <button
               onClick={showNextImage}
               className="absolute right-2 sm:right-6 md:right-10 text-white text-xl sm:text-2xl md:text-3xl p-2 sm:p-3 md:p-4 rounded-full bg-black bg-opacity-50 hover:bg-white hover:text-black transition z-20"
@@ -186,7 +173,6 @@ const Gallery = () => {
             >
               <FaArrowRight />
             </button>
-
             <button
               onClick={handleCloseFullscreen}
               className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 text-white text-xl sm:text-2xl md:text-3xl p-2 sm:p-3 md:p-4 rounded-full bg-red-600 bg-opacity-70 hover:bg-white hover:text-red-600 transition z-20"
@@ -194,8 +180,6 @@ const Gallery = () => {
             >
               <FaTimes />
             </button>
-            
-            {/* Image counter */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-60 text-white px-3 py-1 rounded-full text-sm">
               {currentIndex + 1} / {images.length}
             </div>
@@ -206,11 +190,8 @@ const Gallery = () => {
     </div>
   );
 };
-
 const ScrollToTopButton = () => {
   const [isVisible, setIsVisible] = useState(false);
-  
-  // Show button when page is scrolled down
   useEffect(() => {
     const toggleVisibility = () => {
       if (window.pageYOffset > 300) {
@@ -219,19 +200,15 @@ const ScrollToTopButton = () => {
         setIsVisible(false);
       }
     };
-    
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
-  
-  // Scroll to top function
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
   };
-  
   return (
     <button
       onClick={scrollToTop}
@@ -243,5 +220,4 @@ const ScrollToTopButton = () => {
     </button>
   );
 };
-
 export default Gallery;

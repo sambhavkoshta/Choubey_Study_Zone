@@ -1,20 +1,16 @@
 import Feedback from "../models/Feedback.js";
 
-// ✅ Add Feedback (POST)
 export const addFeedback = async (req, res) => {
   try {
     const { message, rating } = req.body;
-
     if (!message || !rating) {
       return res.status(400).json({ success: false, message: "Message and rating are required" });
     }
-
     const feedback = new Feedback({
-      user: req.user.id, // Middleware से आ रहा है
+      user: req.user.id, 
       message,
       rating,
     });
-
     await feedback.save();
     res.status(201).json({ success: true, message: "Feedback submitted successfully!", feedback });
   } catch (error) {
@@ -22,7 +18,6 @@ export const addFeedback = async (req, res) => {
   }
 };
 
-// ✅ Get All Feedbacks (Admin Panel)
 export const getAllFeedbacks = async (req, res) => {
   try {
     const feedbacks = await Feedback.find().populate("user", "firstname lastname email");
@@ -32,7 +27,6 @@ export const getAllFeedbacks = async (req, res) => {
   }
 };
 
-// ✅ Delete Feedback (Admin Panel)
 export const deleteFeedback = async (req, res) => {
   try {
     const feedback = await Feedback.findById(req.params.id);

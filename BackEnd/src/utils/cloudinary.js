@@ -30,15 +30,12 @@ export const uploadToCloudinary = async (filePath, folder) => {
   }
 };
 
-// 📌 Cloudinary से File Delete Function
 export const deleteFromCloudinary = async (fileUrl) => {
   try {
     if (!fileUrl) throw new Error("File URL is required!");
-
-    // ✅ Extract Public ID (फोल्डर के साथ)
     const parts = fileUrl.split("/");
-    const publicIdWithExtension = parts.slice(-2).join("/"); // Get last two parts (folder + filename)
-    const publicId = publicIdWithExtension.split(".")[0]; // Remove file extension
+    const publicIdWithExtension = parts.slice(-2).join("/"); 
+    const publicId = publicIdWithExtension.split(".")[0];
 
     await cloudinary.uploader.destroy(publicId);
   } catch (error) {

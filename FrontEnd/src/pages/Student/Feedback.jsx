@@ -16,14 +16,12 @@ const Feedback = () => {
     typeof window !== "undefined" ? window.innerWidth : 1024
   );
 
-  // Animation trigger effect
   useEffect(() => {
     setAnimate(true);
     const timeout = setTimeout(() => setAnimate(false), 1000);
     return () => clearTimeout(timeout);
   }, [rating]);
 
-  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
@@ -32,8 +30,6 @@ const Feedback = () => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  // Determine star size based on screen width
   const getStarSize = () => {
     if (windowWidth < 380) return 28;
     if (windowWidth < 640) return 32;
@@ -73,8 +69,6 @@ const Feedback = () => {
         position: "top-center",
         className: "bg-green-50 border-l-4 border-green-500",
       });
-
-      // Reset form after 3 seconds
       setTimeout(() => {
         setMessage("");
         setRating(0);
@@ -134,7 +128,6 @@ const Feedback = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-            {/* Feedback Message */}
             <div className="group relative border border-gray-200 p-3 sm:p-4 rounded-xl transition-all duration-300 hover:border-blue-300 hover:shadow-md focus-within:border-blue-400 focus-within:shadow-lg focus-within:ring-2 focus-within:ring-blue-200">
               <label className="flex items-center gap-2 font-medium text-gray-700 mb-2 text-sm sm:text-base">
                 <FaComments className="text-blue-500" /> 
@@ -151,8 +144,6 @@ const Feedback = () => {
                 {message.length} / 500
               </div>
             </div>
-
-            {/* Star Rating System */}
             <div className="border border-gray-200 p-3 sm:p-4 rounded-xl transition-all duration-300 hover:border-yellow-300 hover:shadow-md focus-within:border-yellow-400 focus-within:shadow-lg focus-within:ring-2 focus-within:ring-yellow-200">
               <label className="flex items-center gap-2 font-medium text-gray-700 mb-2 sm:mb-3 text-sm sm:text-base">
                 <FaStar className="text-yellow-500" /> 
@@ -199,8 +190,6 @@ const Feedback = () => {
                 )}
               </div>
             </div>
-
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}

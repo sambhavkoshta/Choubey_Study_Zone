@@ -18,10 +18,9 @@ import rateLimit from "express-rate-limit";
 
 const router = express.Router();
 
-// ✅ Rate Limiting for OTP APIs
 const otpLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, 
+  windowMs: 15 * 60 * 1000,
+  max:100 , 
   message: "Too many OTP requests. Try again later.",
 });
 
@@ -31,10 +30,7 @@ router.post("/login", loginStudent);
 router.post("/forgot-password", otpLimiter, sendResetOTP);
 router.post("/reset-password", resetPassword);
 router.get("/check-enrollment", checkEnrollment);
-
-// ✅ Secure Routes (Only Authenticated Users)
 router.use(verifyToken);
-// router.get("/enrolled-courses", getEnrolledCourses);
 router.get("/profile", getProfile);
 router.post("/resend-otp", resendOTP);
 router.post("/verify-otp",verifyOTP);
